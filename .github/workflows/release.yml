@@ -1,0 +1,102 @@
+name: Release
+
+# Vérifie chaque pull request et chaque commit sur main (DI-13).
+# Un tag v* construit en plus les paquets, fait signer le .xpi par Mozilla sur le
+# canal non listé, publie la release et annonce la version à Firefox et Zen (DI-09).
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vérifier le typage
+        run: npm run check
+
+      - name: Tests unitaires
+        run: npm test
+
+      - name: Couverture de la spec
+        run: npm run check:coverage
+
+      - name: Installer Chromium pour Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests de bout en bout
+        run: npm run test:e2e
+
+      - name: Valider le paquet Firefox
+        run: npm run build:firefox && npm run lint:firefox
+
+  release:
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      # Publier la release et pousser updates.json sur main.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vérifier que le tag correspond à la version du paquet
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "Le tag $GITHUB_REF_NAME ne correspond pas à la version $VERSION de package.json."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Construire les paquets
+        run: npm run zip && npm run zip:firefox
+
+      - name: Faire signer le .xpi par Mozilla (canal non listé)
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          npx web-ext sign \
+            --channel=unlisted \
+            --source-dir .output/firefox-mv3 \
+            --upload-source-code ".output/whos-next-browser-$VERSION-sources.zip" \
+            --artifacts-dir web-ext-artifacts
+          mv web-ext-artifacts/*.xpi ".output/whos-next-browser-$VERSION-firefox.xpi"
+
+      - name: Publier la release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            .output/whos-next-browser-${{ env.VERSION }}-chrome.zip
+            .output/whos-next-browser-${{ env.VERSION }}-firefox.xpi
+
+      - name: Annoncer la version à Firefox et Zen
+        run: |
+          git fetch origin main
+          git switch --create announce origin/main
+          node scripts/announce-update.mjs "$VERSION" ".output/whos-next-browser-$VERSION-firefox.xpi"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --all --message "chore: announce v$VERSION to Firefox and Zen"
+          git push origin HEAD:main

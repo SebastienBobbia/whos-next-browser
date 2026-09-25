@@ -22,6 +22,12 @@ export default defineConfig({
   manifestVersion: 3,
   // Pas de navigateur lancé par `wxt` : on charge .output/<navigateur>-mv3 à la main.
   webExt: { disabled: true },
+  // L'archive des sources part chez Mozilla avec le .xpi à signer. WXT ne lit pas le
+  // .gitignore : on en retire les Fichiers d'Équipe (noms, photos, FI-10) et les
+  // résultats de tests.
+  zip: {
+    excludeSources: ["whos-next-equipe*.json", "test-results/**", "playwright-report/**", "web-ext-artifacts/**"],
+  },
   manifest: ({ browser }) => ({
     name: "Who's Next?",
     description:

@@ -51,7 +51,7 @@ Parcours déjà automatisés dans Chromium, à confirmer dans Firefox et Zen.
 
 | # | Vérification | Attendu | Spec |
 |---|---|---|---|
-| R-50 | Chercher `entreprise.com` et les noms de l'Équipe dans le `.zip` et le `.xpi` décompressés | Aucun résultat : ni données d'Équipe, ni adresse du Jira | DI-04 |
+| R-50 | Chercher `entreprise.com` et les noms de l'Équipe dans le `.zip`, le `.xpi` et l'archive des sources envoyée à Mozilla, décompressés | Aucune donnée d'Équipe ni Fichier d'Équipe ; l'adresse du Jira n'apparaît que dans les exemples de la doc et des tests de l'archive des sources | DI-04, FI-10 |
 | R-51 | `git check-ignore whos-next-equipe-20260925.json` | Le fichier est ignoré : un Fichier d'Équipe n'entre jamais dans le dépôt | FI-10 |
 | R-52 | Sur un poste avec seulement Node : `npm ci`, `npm run build`, `npm run build:firefox` | Les deux dossiers `.output/chrome-mv3` et `.output/firefox-mv3` sont produits, sans Rust ni outils Windows | DI-08 |
 | R-53 | Ouvrir une pull request | GitHub Actions passe le typage, les tests unitaires, les tests de bout en bout et `check:coverage` | DI-13 |
