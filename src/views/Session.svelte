@@ -2,6 +2,7 @@
   import Glyph from "../lib/Glyph.svelte";
   import { loadIcon, TILE_DEFAULT } from "../lib/icons";
   import { session, type SessionState } from "../lib/session.svelte";
+  import { openLink } from "../lib/tabs";
   import { team } from "../lib/team.svelte";
   import type { Member } from "../lib/types";
 
@@ -39,8 +40,14 @@
     }
   });
 
+  /**
+   * Marque le Participant A parlé, puis charge son Lien. Le panneau est mis à
+   * jour avant la demande de chargement, qui n'est pas attendue (PF-16, LI-14).
+   */
   function markSpoken(name: string) {
     void session.markSpoken(name);
+    const link = member(name)?.link;
+    if (link) openLink(link).catch(() => {});
   }
 
   function draw() {

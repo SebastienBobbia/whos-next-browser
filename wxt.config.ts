@@ -26,8 +26,9 @@ export default defineConfig({
     name: "Who's Next?",
     description:
       "Qui n'a pas encore parlé au daily ? Un clic sur la tuile affiche la page de la personne.",
-    // Stockage de l'Équipe et de la Session (DI-11). WXT ajoute sidePanel pour Chrome.
-    permissions: ["storage"],
+    // Stockage de l'Équipe et de la Session, adresse des onglets pour les Liens (DI-11).
+    // WXT ajoute sidePanel pour Chrome.
+    permissions: ["storage", "tabs"],
     // Sans action, pas d'icône dans la barre d'outils pour ouvrir le panneau (PA-02).
     action: {
       default_title: "Who's Next?",

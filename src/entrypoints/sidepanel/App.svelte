@@ -4,12 +4,14 @@
   import type { Member } from "../../lib/types";
   import Equipe from "../../views/Equipe.svelte";
   import IconPicker from "../../views/IconPicker.svelte";
+  import LinkDialog from "../../views/LinkDialog.svelte";
   import Presence from "../../views/Presence.svelte";
   import Session from "../../views/Session.svelte";
 
   /** Vue affichée hors Session. Pendant une Session, la vue Session prend le dessus (EQ-01). */
   let form = $state<"equipe" | "presence">("equipe");
   let editing = $state<Member | null>(null);
+  let linking = $state<Member | null>(null);
   let ready = $state(false);
 
   $effect(() => {
@@ -22,6 +24,7 @@
     if (session.state) {
       form = "equipe";
       editing = null;
+      linking = null;
     }
   });
 
@@ -34,12 +37,19 @@
   {#if session.state}
     <Session current={session.state} />
   {:else if form === "equipe"}
-    <Equipe onPrepare={() => (form = "presence")} onEditIcon={(m) => (editing = m)} />
+    <Equipe
+      onPrepare={() => (form = "presence")}
+      onEditIcon={(m) => (editing = m)}
+      onEditLink={(m) => (linking = m)} />
   {:else}
     <Presence onBack={() => (form = "equipe")} onStart={startSession} />
   {/if}
 
   {#if editing}
     <IconPicker member={editing} onClose={() => (editing = null)} />
+  {/if}
+
+  {#if linking}
+    <LinkDialog member={linking} onClose={() => (linking = null)} />
   {/if}
 {/if}

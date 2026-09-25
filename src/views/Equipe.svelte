@@ -4,7 +4,11 @@
   import { team } from "../lib/team.svelte";
   import type { Member } from "../lib/types";
 
-  let { onPrepare, onEditIcon }: { onPrepare: () => void; onEditIcon: (m: Member) => void } =
+  let {
+    onPrepare,
+    onEditIcon,
+    onEditLink,
+  }: { onPrepare: () => void; onEditIcon: (m: Member) => void; onEditLink: (m: Member) => void } =
     $props();
 
   let draft = $state("");
@@ -89,6 +93,13 @@
           {:else}
             <Glyph name="plus" size={14} />
           {/if}
+        </button>
+        <button
+          class="link-btn"
+          class:set={!!member.link}
+          title={member.link ?? "Lien"}
+          onclick={() => onEditLink(member)}>
+          <Glyph name="link" size={14} />
         </button>
         <button class="del-btn" title="Supprimer" onclick={() => team.remove(member.name)}>
           <Glyph name="close" size={14} />
@@ -251,6 +262,7 @@
   }
 
   .icon-btn,
+  .link-btn,
   .del-btn {
     width: 30px;
     height: 26px;
@@ -260,6 +272,19 @@
     justify-content: center;
     background: #30305a;
     color: #c9c8e0;
+  }
+
+  /* Lien : estompé tant qu'il n'existe pas, mis en valeur ensuite (LI-01). */
+  .link-btn {
+    color: var(--txt-faint);
+    background: transparent;
+    border: 1px solid var(--ink-line);
+  }
+
+  .link-btn.set {
+    color: #fff;
+    background: var(--blue);
+    border-color: transparent;
   }
 
   .btn-emoji {
