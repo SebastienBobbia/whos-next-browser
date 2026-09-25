@@ -1,59 +1,45 @@
-<!-- Panneau provisoire : les vues Équipe, Présence et Session arrivent à l'étape 3.
-     Il charge déjà l'Équipe et la Session, pour vérifier le stockage dans le navigateur. -->
 <script lang="ts">
   import { session } from "../../lib/session.svelte";
   import { team } from "../../lib/team.svelte";
+  import type { Member } from "../../lib/types";
+  import Equipe from "../../views/Equipe.svelte";
+  import IconPicker from "../../views/IconPicker.svelte";
+  import Presence from "../../views/Presence.svelte";
+  import Session from "../../views/Session.svelte";
 
-  const logo = browser.runtime.getURL("/icon/96.png");
-
+  /** Vue affichée hors Session. Pendant une Session, la vue Session prend le dessus (EQ-01). */
+  let form = $state<"equipe" | "presence">("equipe");
+  let editing = $state<Member | null>(null);
   let ready = $state(false);
 
   $effect(() => {
     Promise.all([team.load(), session.load()]).then(() => (ready = true));
   });
+
+  // Une Session lancée ici ou dans une autre fenêtre (SE-18) se termine
+  // toujours sur la vue Équipe (SE-09, SE-10).
+  $effect(() => {
+    if (session.state) {
+      form = "equipe";
+      editing = null;
+    }
+  });
+
+  function startSession(present: string[]) {
+    void session.start(present);
+  }
 </script>
 
-<main>
-  <img src={logo} alt="" width="48" height="48" />
-  <h1>Who's Next?</h1>
-  {#if ready}
-    <p>
-      {team.members.length} membre(s) dans l'équipe ·
-      {session.state ? "Session en cours" : "aucune Session"}
-    </p>
+{#if ready}
+  {#if session.state}
+    <Session current={session.state} />
+  {:else if form === "equipe"}
+    <Equipe onPrepare={() => (form = "presence")} onEditIcon={(m) => (editing = m)} />
+  {:else}
+    <Presence onBack={() => (form = "equipe")} onStart={startSession} />
   {/if}
-</main>
 
-<style>
-  :global(html),
-  :global(body) {
-    margin: 0;
-    height: 100%;
-    background: #15152b;
-    color: #ecebf5;
-    color-scheme: dark;
-    font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
-  }
-
-  main {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 16px;
-    text-align: center;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
-    font-size: 1.8rem;
-  }
-
-  p {
-    margin: 0;
-    color: #8d8cab;
-  }
-</style>
+  {#if editing}
+    <IconPicker member={editing} onClose={() => (editing = null)} />
+  {/if}
+{/if}

@@ -4,7 +4,7 @@ Extension de navigateur pour les daily meetings : savoir qui n'a pas encore pris
 
 Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbia/whos-next) (Tauri 2), qui reste disponible mais n'évolue plus. Les deux ne partagent aucune donnée.
 
-> En cours de développement : pour l'instant, le panneau s'ouvre mais ne contient pas encore les vues. Les paquets décrits ci-dessous seront publiés dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases).
+> En cours de développement : les vues Équipe, Présence et Session fonctionnent. Le Lien et le Fichier d'Équipe arrivent ensuite. Les paquets décrits ci-dessous seront publiés dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases).
 
 ## Fonctionnalités
 
