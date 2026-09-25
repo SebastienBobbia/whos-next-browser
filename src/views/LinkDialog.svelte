@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte";
   import { parseLink } from "../lib/link";
-  import { activeTabUrl, openLink } from "../lib/tabs";
+  import { activeTabUrl, openLink, requestBoardAccess } from "../lib/tabs";
   import { team } from "../lib/team.svelte";
   import type { Member } from "../lib/types";
 
@@ -29,6 +29,7 @@
       error = INVALID;
       return;
     }
+    requestBoardAccess([link]);
     error = "";
     await openLink(link).catch(() => {});
   }
@@ -49,6 +50,8 @@
       error = INVALID;
       return;
     }
+    // Avant tout await : le navigateur n'accepte la demande que pendant le clic (LI-16).
+    requestBoardAccess([link]);
     if (link !== member.link) await team.setLink(member.name, link);
     onClose();
   }

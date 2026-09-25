@@ -1,6 +1,7 @@
 <script lang="ts">
   import Glyph from "../lib/Glyph.svelte";
   import MemberIcon from "../lib/MemberIcon.svelte";
+  import { requestBoardAccess } from "../lib/tabs";
   import { team } from "../lib/team.svelte";
 
   let { onBack, onStart }: { onBack: () => void; onStart: (attendees: string[]) => void } =
@@ -19,6 +20,9 @@
 
   async function start() {
     if (present.length === 0) return;
+    // Avant tout await : le navigateur n'accepte la demande que pendant le clic (LI-16).
+    const presentSet = new Set(present);
+    requestBoardAccess(team.members.filter((m) => presentSet.has(m.name)).map((m) => m.link));
     await team.saveAbsents(present);
     onStart(present);
   }

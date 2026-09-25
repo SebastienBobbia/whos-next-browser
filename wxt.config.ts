@@ -26,9 +26,12 @@ export default defineConfig({
     name: "Who's Next?",
     description:
       "Qui n'a pas encore parlé au daily ? Un clic sur la tuile affiche la page de la personne.",
-    // Stockage de l'Équipe et de la Session, adresse des onglets pour les Liens (DI-11).
-    // WXT ajoute sidePanel pour Chrome.
-    permissions: ["storage", "tabs"],
+    // Stockage de l'Équipe et de la Session, adresse des onglets pour les Liens, script
+    // des Filtres rapides (DI-11). WXT ajoute sidePanel pour Chrome.
+    permissions: ["storage", "tabs", "scripting"],
+    // Accès aux sites des Tableaux Jira, demandé site par site pendant l'utilisation (LI-16) :
+    // l'adresse du Jira n'est jamais écrite dans le paquet (ADR 0002).
+    optional_host_permissions: ["https://*/*", "http://*/*"],
     // Sans action, pas d'icône dans la barre d'outils pour ouvrir le panneau (PA-02).
     action: {
       default_title: "Who's Next?",

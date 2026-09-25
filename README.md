@@ -38,9 +38,12 @@ Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbi
 
 **Mettre à jour** : rien à faire, Firefox et Zen installent les nouvelles versions tout seuls.
 
-### Pourquoi l'accès aux onglets
+### Autorisations
 
-L'extension lit l'adresse des onglets pour trouver l'onglet Jira et pour le bouton **Prendre l'onglet actuel**. Elle n'injecte rien dans les pages et n'envoie aucune donnée. Chrome décrit cette autorisation comme « Lire votre historique de navigation ».
+- **Onglets** : l'extension lit l'adresse des onglets pour retrouver l'onglet du tableau Jira, et pour le bouton **Prendre l'onglet actuel**. Chrome décrit cette autorisation comme « Lire votre historique de navigation ».
+- **Accès au site Jira** : demandé une seule fois, la première fois que vous cliquez sur **Valider** dans la fenêtre d'un Lien Jira, ou sur **Démarrer le Daily**. Acceptez : l'extension peut alors cocher le filtre de la personne directement dans la page, sans la recharger. Si vous refusez, tout fonctionne, mais la page Jira se recharge à chaque personne.
+
+L'extension n'envoie aucune donnée. Dans Jira, elle ne fait que cocher et décocher les filtres rapides.
 
 ## Premier lancement
 
@@ -60,7 +63,7 @@ Pour partager les Liens avec les collègues : **Exporter**, puis envoyer le fich
 ## Pendant le daily
 
 1. **Préparer le Daily**, cocher les présents, **Démarrer le Daily**.
-2. Quand quelqu'un prend la parole, cliquer sur sa tuile : elle disparaît et Jira affiche ses tickets.
+2. Quand quelqu'un prend la parole, cliquer sur sa tuile : elle disparaît et Jira affiche ses tickets. Si le tableau Jira est déjà ouvert, son filtre est coché directement dans la page, sans rechargement. Une personne suivie sur un autre tableau a son propre onglet.
 3. Quand tout le monde a parlé, la célébration s'affiche, puis le panneau revient à la vue Équipe.
 
 La session est conservée si le panneau se ferme par erreur : il suffit de le rouvrir.
