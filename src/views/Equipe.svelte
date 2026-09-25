@@ -73,7 +73,14 @@
     }
   }
 
+  /** Le clic en cours a commencé sur un bouton de la ligne : pas de glisser (EQ-15). */
+  let pressedOnButton = false;
+
   function onDragStart(event: DragEvent, index: number) {
+    if (pressedOnButton) {
+      event.preventDefault();
+      return;
+    }
     dragFrom = index;
     // Firefox ne démarre pas un glisser-déposer sans données attachées.
     event.dataTransfer?.setData("text/plain", team.members[index]?.name ?? "");
@@ -124,6 +131,7 @@
         class="row"
         class:dragging={dragFrom === index}
         draggable="true"
+        onpointerdown={(e) => (pressedOnButton = !!(e.target as Element).closest("button"))}
         ondragstart={(e) => onDragStart(e, index)}
         ondragover={(e) => onDragOver(e, index)}
         ondragend={() => ((dragFrom = null), (dropAt = null))}>

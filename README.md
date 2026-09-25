@@ -4,7 +4,7 @@ Extension de navigateur pour les daily meetings : savoir qui n'a pas encore pris
 
 Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbia/whos-next) (Tauri 2), qui reste disponible mais n'évolue plus. Les deux ne partagent aucune donnée.
 
-> En cours de développement : toutes les fonctions marchent. Restent les tests de bout en bout et la publication automatique des paquets dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases). En attendant, construisez l'extension vous-même (voir « Pour développer »).
+> En cours de développement : toutes les fonctions marchent et sont testées. Reste la publication automatique des paquets dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases). En attendant, construisez l'extension vous-même (voir « Pour développer »).
 
 ## Fonctionnalités
 
@@ -77,7 +77,9 @@ npm install
 npm run build            # paquet Chrome dans .output/chrome-mv3
 npm run build:firefox    # paquet Firefox et Zen dans .output/firefox-mv3
 npm run check            # typage Svelte et TypeScript
-npm test                 # domaine, couleur dominante, stockage (vitest)
+npm test                 # domaine, stockage, Fichier d'Équipe, onglets (vitest)
+npm run test:e2e         # parcours des vues, extension chargée dans Chromium (Playwright)
+npm run check:coverage   # chaque exigence de la spec a un test ou une ligne de recette
 npm run lint:firefox     # validation du paquet Firefox (web-ext)
 ```
 
@@ -102,3 +104,4 @@ Charger la version construite pour l'essayer :
 | [CONTEXT.md](CONTEXT.md) | Glossaire du domaine |
 | [docs/spec/](docs/spec/) | Spécification fonctionnelle, une exigence par identifiant |
 | [docs/adr/](docs/adr/) | Décisions structurantes et leurs alternatives écartées |
+| [docs/recette-manuelle.md](docs/recette-manuelle.md) | Vérifications manuelles avant distribution : panneau réel, Firefox et Zen, Jira, paquets |

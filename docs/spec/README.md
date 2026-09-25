@@ -78,4 +78,4 @@ Le visuel reprend celui de l'application de bureau (maquettes dans `docs/design/
 - Tests de bout en bout (Playwright) : extension chargée dans Chromium, parcours Équipe, Lien, Présence, Session, import et export. Playwright ne sait pas charger une extension dans Firefox : Firefox et Zen passent par la recette manuelle.
 - Recette manuelle : Firefox, Zen, installation, mise à jour, autorisations, panneau ouvert dans deux fenêtres, partage de la fenêtre dans Teams.
 
-Chaque exigence de cette spécification doit être couverte par au moins un test automatique ou une ligne de recette manuelle.
+Chaque exigence de cette spécification doit être couverte par au moins un test automatique ou une ligne de recette manuelle ([recette-manuelle.md](../recette-manuelle.md)). `npm run check:coverage` le vérifie.
