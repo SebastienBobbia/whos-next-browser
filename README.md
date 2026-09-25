@@ -74,6 +74,7 @@ npm install
 npm run build            # paquet Chrome dans .output/chrome-mv3
 npm run build:firefox    # paquet Firefox et Zen dans .output/firefox-mv3
 npm run check            # typage Svelte et TypeScript
+npm test                 # domaine, couleur dominante, stockage (vitest)
 npm run lint:firefox     # validation du paquet Firefox (web-ext)
 ```
 
