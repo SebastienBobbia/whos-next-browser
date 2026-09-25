@@ -20,7 +20,7 @@ La vue Présence (« Qui est présent ? ») sert à choisir les Participants ava
 
 **PR-07** — Le bouton `<<< Retour` `[INDICATIF]` ramène à la vue Équipe, sans rien enregistrer.
 
-**PR-08** — Le bouton `Démarrer le Daily >>>` `[INDICATIF]` lance une Session. Les Membres cochés deviennent ses Participants, dans l'ordre de l'Équipe. Si aucune case n'est cochée, le bouton n'a aucun effet et aucun message ne s'affiche. Le lancement ne change aucun onglet.
+**PR-08** — Le bouton `Démarrer le Daily >>>` `[INDICATIF]` lance une Session. Les Membres cochés deviennent ses Participants, dans l'ordre de l'Équipe. Si aucune case n'est cochée, le bouton n'a aucun effet et aucun message ne s'affiche. Le lancement ne change aucun onglet, mais demande l'accès aux sites des Tableaux Jira des Participants, s'il n'est pas encore accordé (LI-16).
 
 **PR-09** — Au lancement d'une Session (PR-08 réussi), l'extension enregistre les Absents :
 - chaque Membre décoché est marqué Absent ;

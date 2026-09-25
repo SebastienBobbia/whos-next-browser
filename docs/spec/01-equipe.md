@@ -63,10 +63,10 @@ Application de bureau : pas de bouton Lien.
 
 **LI-04** `[NOUVEAU]` — `Prendre l'onglet actuel` remplit le champ avec l'adresse de l'onglet actif de la fenêtre du panneau. Usage prévu : cliquer sur le filtre de la personne dans Jira, puis sur ce bouton. Si l'adresse de l'onglet actif ne commence pas par `http://` ou `https://` (page interne du navigateur, par exemple), le champ ne change pas et le message `Cet onglet n'affiche pas une page web.` `[INDICATIF]` s'affiche.
 
-**LI-05** `[NOUVEAU]` — `Tester` charge l'adresse du champ comme le ferait un clic sur la Tuile du Membre (LI-10), sans rien enregistrer. Une adresse invalide (LI-06) affiche le message d'erreur et ne charge rien.
+**LI-05** `[NOUVEAU]` — `Tester` affiche l'adresse du champ comme le ferait un clic sur la Tuile du Membre (LI-10, LI-11), sans rien enregistrer. Une adresse invalide (LI-06) affiche le message d'erreur et ne charge rien.
 
 **LI-06** `[NOUVEAU]` — Le contenu du champ est débarrassé de ses espaces de début et de fin. Une adresse est valide si elle est absolue et commence par `http://` ou `https://`. Elle est enregistrée telle quelle, fragment `#` compris. Si l'adresse n'est pas valide, `Valider` affiche `Adresse invalide : elle doit commencer par http:// ou https://.` `[INDICATIF]` et la fenêtre reste ouverte. Valider un champ vide retire le Lien.
 
-**LI-07** `[NOUVEAU]` — `Valider` enregistre le Lien et ferme la fenêtre. `Supprimer le lien` retire tout de suite le Lien et ferme la fenêtre, sans passer par `Valider`. `Annuler`, la touche Échap et la fermeture de la fenêtre ne modifient rien.
+**LI-07** `[NOUVEAU]` — `Valider` enregistre le Lien et ferme la fenêtre. Pour un Tableau Jira, `Valider` et `Tester` demandent aussi l'accès au site, s'il n'est pas encore accordé (LI-16). `Supprimer le lien` retire tout de suite le Lien et ferme la fenêtre, sans passer par `Valider`. `Annuler`, la touche Échap et la fermeture de la fenêtre ne modifient rien.
 
 **LI-08** `[NOUVEAU]` — Tout changement de Lien est sauvegardé immédiatement. Plusieurs Membres peuvent avoir le même Lien.

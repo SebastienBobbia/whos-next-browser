@@ -12,6 +12,7 @@ Conditions de mesure : poste Windows 10 ou 11 standard, Chrome ou Firefox à jou
 | **PF-02** | Clic sur une Tuile jusqu'à l'affichage du panneau mis à jour (le chargement de la page du Lien n'est pas compté) | < 50 ms |
 | **PF-03** | Changement de largeur du panneau, ou passage de la fenêtre sur un écran de DPI différent | Aucun gel, nouvelle mise en page < 200 ms |
 | **PF-06** `[NOUVEAU]` | Import d'un Fichier d'Équipe de 20 Membres avec images, jusqu'à la vue Équipe à jour | < 1 s `[INDICATIF]` |
+| **PF-07** `[NOUVEAU]` | Clic sur une Tuile dont le Lien vise le Tableau Jira déjà ouvert, jusqu'aux Filtres rapides changés | Aucun rechargement de la page : le délai est celui d'un clic manuel sur un Filtre rapide |
 
 PF-01 dans l'application de bureau : lancement de l'exe. PF-04 (calage de la fenêtre) est supprimée avec le calage.
 
@@ -31,7 +32,7 @@ PF-01 dans l'application de bureau : lancement de l'exe. PF-04 (calage de la fen
 
 **PF-15** — Aucune attente fixe dans l'enchaînement des actions. La durée d'affichage de la Célébration (SE-10) n'est pas une attente : c'est un temps d'affichage voulu.
 
-**PF-16** `[NOUVEAU]` — Le clic sur une Tuile met d'abord à jour le panneau, puis demande le chargement du Lien, sans attendre le résultat de cette demande (LI-14).
+**PF-16** `[NOUVEAU]` — Le clic sur une Tuile met d'abord à jour le panneau, puis demande l'affichage du Lien, sans attendre le résultat de cette demande (LI-14).
 
 ## Mesure
 

@@ -29,11 +29,13 @@ Les exigences DI-06 (remplacement de l'ancienne application Python) et DI-07 (me
 **DI-11** `[NOUVEAU]` — L'extension demande uniquement ces autorisations :
 - le stockage local ;
 - le panneau latéral (Chrome) ;
-- les onglets (`tabs`), pour lire l'adresse des onglets (LI-04, LI-10).
+- les onglets (`tabs`), pour lire l'adresse des onglets (LI-04, LI-10) ;
+- l'injection de script (`scripting`), pour les Filtres rapides (LI-11) ;
+- l'accès aux sites des Tableaux Jira, demandé site par site pendant l'utilisation (LI-16), jamais à l'installation.
 
-Firefox et Zen affichent l'autorisation des onglets à l'installation (« Accéder aux onglets du navigateur »). Chrome ne montre pas de demande pour une extension chargée non empaquetée, mais affiche cette autorisation dans les détails de l'extension (« Lire votre historique de navigation »).
+Firefox et Zen affichent l'autorisation des onglets à l'installation (« Accéder aux onglets du navigateur »). Chrome ne montre pas de demande pour une extension chargée non empaquetée, mais affiche cette autorisation dans les détails de l'extension (« Lire votre historique de navigation »). L'accès à un site s'affiche au moment de la demande, par exemple « Lire et modifier vos données sur jira.entreprise.com ».
 
-**DI-12** `[NOUVEAU]` — L'extension n'injecte aucun script dans les pages web et ne lit pas leur contenu. Elle ne fait aucun accès réseau elle-même : seul le chargement des Liens, dans les onglets, touche le réseau. Les polices sont intégrées au paquet.
+**DI-12** `[NOUVEAU]` — L'extension n'injecte un script que dans l'onglet d'un Tableau Jira, sur un site autorisé, pour cocher et décocher ses Filtres rapides (LI-11). Ce script lit seulement l'état des boutons de Filtre rapide. L'extension ne fait aucun accès réseau elle-même : seul l'affichage des Liens, dans les onglets, touche le réseau. Les polices sont intégrées au paquet.
 
 ## Installation et mises à jour
 

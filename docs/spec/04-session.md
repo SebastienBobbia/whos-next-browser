@@ -1,6 +1,6 @@
 # 04 — Session
 
-Une Session est un daily en cours. Elle affiche une Tuile pour chaque Restant, charge le Lien de chaque Participant qui prend la parole et se termine par la Célébration, quand tous les Participants ont parlé.
+Une Session est un daily en cours. Elle affiche une Tuile pour chaque Restant, affiche le Lien de chaque Participant qui prend la parole et se termine par la Célébration, quand tous les Participants ont parlé.
 
 ## Déroulement
 
@@ -65,17 +65,32 @@ Application de bureau : redimensionnement et calage de la fenêtre.
 
 ## Chargement du Lien
 
-**LI-10** `[NOUVEAU]` — Quand une Tuile est cliquée et que son Membre a un Lien, l'extension charge ce Lien dans un onglet de la fenêtre du panneau, choisi dans cet ordre :
-1. l'onglet actif, s'il affiche une page du même site que le Lien ;
-2. sinon, le premier onglet de la fenêtre qui affiche une page du même site, qui devient l'onglet actif ;
-3. sinon, un nouvel onglet, qui devient l'onglet actif.
+**LI-10** `[NOUVEAU]` — Quand une Tuile est cliquée et que son Membre a un Lien, l'extension affiche ce Lien dans un onglet de la fenêtre du panneau. Il y a un onglet par Tableau ([ADR 0004](../adr/0004-filtres-rapides-dans-la-page.md)). L'onglet est choisi dans cet ordre :
+1. l'onglet actif, s'il affiche le Tableau du Lien ;
+2. sinon, le premier onglet de la fenêtre qui affiche ce Tableau, qui devient l'onglet actif ;
+3. sinon, un nouvel onglet, qui devient l'onglet actif et charge le Lien.
 
-« Même site » veut dire même origine : même protocole, même hôte et même port (par exemple `https://jira.entreprise.com`).
+Deux adresses affichent le même Tableau :
+- pour un Tableau Jira (adresse `…/RapidBoard.jspa` avec un paramètre `rapidView`) : même origine (protocole, hôte et port), même chemin et même `rapidView`. Les autres paramètres sont ignorés, pour qu'un ticket ouvert pendant le daily (`selectedIssue=COP-12`) ne change pas l'onglet reconnu ;
+- pour toute autre adresse : même adresse, fragment `#` non compris.
 
-**LI-11** `[NOUVEAU]` — Le Lien est chargé tel qu'il est enregistré, sans modification.
+Exemple : le Lien d'un Membre vise le Tableau 999 et tous les autres le Tableau 528. Le clic sur ce Membre ouvre un second onglet. Au clic suivant, l'onglet du Tableau 528 revient au premier plan.
+
+**LI-11** `[NOUVEAU]` — Dans un onglet existant qui affiche un Tableau Jira, les Filtres rapides sont appliqués dans la page, sans la recharger : exactement ceux du Lien (paramètres `quickFilter`) sont cochés, tous les autres sont décochés. Un Lien sans Filtre rapide décoche tous les Filtres rapides. C'est le même résultat que le chargement du Lien, en plus rapide.
 
 **LI-12** `[NOUVEAU]` — Si le Membre n'a pas de Lien, le clic sur sa Tuile ne change aucun onglet.
 
 **LI-13** `[NOUVEAU]` — Le Tirage, l'annulation, le bouton de fin et la Célébration ne changent aucun onglet.
 
-**LI-14** `[NOUVEAU]` — Le chargement du Lien ne retarde pas la mise à jour des Tuiles (PF-02). Un échec du chargement (onglet fermé au même moment, par exemple) n'affiche aucun message et n'interrompt pas la Session. Une adresse injoignable s'affiche comme le navigateur l'affiche d'habitude, dans l'onglet choisi.
+**LI-14** `[NOUVEAU]` — L'affichage du Lien ne retarde pas la mise à jour des Tuiles (PF-02). Un échec (onglet fermé au même moment, par exemple) n'affiche aucun message et n'interrompt pas la Session. Une adresse injoignable s'affiche comme le navigateur l'affiche d'habitude, dans l'onglet choisi.
+
+**LI-15** `[NOUVEAU]` — L'onglet choisi charge le Lien tel qu'il est enregistré, en rechargeant la page, dans ces cas :
+- le Lien n'est pas un Tableau Jira ;
+- l'extension n'a pas l'accès au site du Tableau (LI-16) ;
+- la page ne contient pas de bouton de Filtre rapide, ou pas celui d'un Filtre rapide du Lien (page encore en chargement, autre vue de Jira, Jira modifié).
+
+**LI-16** `[NOUVEAU]` — L'accès au site d'un Tableau Jira est demandé au navigateur site par site, jamais écrit dans le paquet (ADR 0002) :
+- au clic sur `Valider` ou `Tester` dans la fenêtre Lien, pour le site de ce Lien ;
+- au clic sur `Démarrer le Daily`, pour les sites des Liens des Participants.
+
+Un site déjà autorisé ne déclenche aucune demande. Un refus n'empêche rien : le Lien est alors chargé (LI-15).

@@ -19,12 +19,22 @@ Visuel optionnel d'un Membre : soit un emoji, soit une image importée.
 _Avoid_: Avatar, photo
 
 **Lien**:
-Adresse web optionnelle d'un Membre, affichée dans le navigateur quand il prend la parole.
+Adresse web optionnelle d'un Membre, affichée dans le navigateur quand il prend la parole. Elle désigne souvent un Tableau et ses Filtres rapides.
 _Avoid_: URL, filtre, quickFilter, lien Jira
 
 **Fichier d'Équipe**:
 Fichier qui transporte une Équipe complète (Membres, Icônes, Liens) d'un navigateur à un autre.
 _Avoid_: team.json, export, sauvegarde
+
+### Tableau
+
+**Tableau**:
+Page web qui affiche les tickets de l'équipe, partagée par plusieurs Liens qui ne diffèrent que par leurs Filtres rapides.
+_Avoid_: dashboard, tableau de bord, root, board
+
+**Filtre rapide**:
+Bouton d'un Tableau qui restreint les tickets affichés, par exemple à ceux d'un Membre.
+_Avoid_: filtre nominatif, quickFilter
 
 ### Session
 

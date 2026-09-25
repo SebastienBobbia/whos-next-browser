@@ -32,7 +32,7 @@ Une exigence reprise de l'application de bureau garde son identifiant (`EQ-05`, 
 | Sujet | Application de bureau | Extension | Exigences |
 |---|---|---|---|
 | Affichage | Fenêtre calée au bord droit de l'écran, toujours au premier plan | Panneau latéral du navigateur | PA-01 à PA-06 |
-| Clic sur une Tuile | Marque A parlé | Marque A parlé et charge le Lien du Membre | SE-03, LI-10 à LI-14 |
+| Clic sur une Tuile | Marque A parlé | Marque A parlé et affiche le Lien du Membre : Filtres rapides appliqués dans l'onglet du Tableau, ou chargement de la page | SE-03, LI-10 à LI-16, [ADR 0004](../adr/0004-filtres-rapides-dans-la-page.md) |
 | Lien | — | Adresse web saisie pour chaque Membre | LI-01 à LI-08 |
 | Données | `%APPDATA%\WhosNext\team.json` et dossier `icons\` | Stockage de l'extension, propre à chaque navigateur | PE-01, PE-02 |
 | Équipe par défaut | Intégrée à l'exe, copiée au premier lancement | Aucune : partage par Fichier d'Équipe | FI-01 à FI-09, [ADR 0002](../adr/0002-equipe-partagee-par-fichier.md) |
