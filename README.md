@@ -84,7 +84,8 @@ npm run lint:firefox     # validation du paquet Firefox (web-ext)
 Créer un Fichier d'Équipe à partir des données de l'application de bureau (noms et icônes, sans Liens) :
 
 ```bash
-npm run team-file -- "%APPDATA%\WhosNext"
+npm run team-file -- "%APPDATA%\WhosNext"       # invite de commandes (cmd)
+npm run team-file -- "$env:APPDATA\WhosNext"    # PowerShell
 ```
 
 Le fichier `whos-next-equipe-AAAAMMJJ.json` apparaît dans le dossier courant. Git l'ignore : il ne doit jamais aller dans le dépôt.
