@@ -4,7 +4,7 @@ Extension de navigateur pour les daily meetings : savoir qui n'a pas encore pris
 
 Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbia/whos-next) (Tauri 2), qui reste disponible mais n'évolue plus. Les deux ne partagent aucune donnée.
 
-> Le code n'est pas encore écrit. Ce dépôt contient pour l'instant la spécification et les décisions. Les paquets décrits ci-dessous seront publiés dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases).
+> En cours de développement : pour l'instant, le panneau s'ouvre mais ne contient pas encore les vues. Les paquets décrits ci-dessous seront publiés dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases).
 
 ## Fonctionnalités
 
@@ -64,6 +64,23 @@ Pour partager les Liens avec les collègues : **Exporter**, puis envoyer le fich
 3. Quand tout le monde a parlé, la célébration s'affiche, puis le panneau revient à la vue Équipe.
 
 La session est conservée si le panneau se ferme par erreur : il suffit de le rouvrir.
+
+## Pour développer
+
+Prérequis : Node 22 ou plus. Rien d'autre.
+
+```bash
+npm install
+npm run build            # paquet Chrome dans .output/chrome-mv3
+npm run build:firefox    # paquet Firefox et Zen dans .output/firefox-mv3
+npm run check            # typage Svelte et TypeScript
+npm run lint:firefox     # validation du paquet Firefox (web-ext)
+```
+
+Charger la version construite pour l'essayer :
+
+- **Chrome** : dans `chrome://extensions`, mode développeur activé, **Charger l'extension non empaquetée**, dossier `.output\chrome-mv3`. Après chaque construction, cliquer sur ↻. L'identifiant reste `fimkkabgaecgpjhklgefimmefecaoibl`, quel que soit le dossier.
+- **Firefox et Zen** : dans `about:debugging#/runtime/this-firefox`, **Charger un module complémentaire temporaire…**, fichier `.output\firefox-mv3\manifest.json`. Le module disparaît au redémarrage du navigateur.
 
 ## Documentation
 

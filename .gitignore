@@ -1,2 +1,8 @@
 # Fichiers d'Équipe : noms, images et adresses internes, jamais dans le dépôt public (FI-10)
 whos-next-equipe*.json
+
+node_modules/
+.output/
+.wxt/
+web-ext-artifacts/
+*.log
