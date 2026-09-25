@@ -1,7 +1,13 @@
 {
   "addons": {
     "whos-next@sebastienbobbia.github.io": {
-      "updates": []
+      "updates": [
+        {
+          "version": "1.0.0",
+          "update_link": "https://github.com/SebastienBobbia/whos-next-browser/releases/download/v1.0.0/whos-next-browser-1.0.0-firefox.xpi",
+          "update_hash": "sha256:e6baf075777a2c5c6d8d5b561758f057e3889d6808d9d9ac0b35c576515266f9"
+        }
+      ]
     }
   }
 }
