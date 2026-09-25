@@ -4,7 +4,7 @@ Extension de navigateur pour les daily meetings : savoir qui n'a pas encore pris
 
 Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbia/whos-next) (Tauri 2), qui reste disponible mais n'évolue plus. Les deux ne partagent aucune donnée.
 
-> En cours de développement : les vues Équipe, Présence et Session et le Lien fonctionnent. Le Fichier d'Équipe arrive ensuite. Les paquets décrits ci-dessous seront publiés dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases).
+> En cours de développement : toutes les fonctions marchent. Restent les tests de bout en bout et la publication automatique des paquets dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases). En attendant, construisez l'extension vous-même (voir « Pour développer »).
 
 ## Fonctionnalités
 
@@ -80,6 +80,14 @@ npm run check            # typage Svelte et TypeScript
 npm test                 # domaine, couleur dominante, stockage (vitest)
 npm run lint:firefox     # validation du paquet Firefox (web-ext)
 ```
+
+Créer un Fichier d'Équipe à partir des données de l'application de bureau (noms et icônes, sans Liens) :
+
+```bash
+npm run team-file -- "%APPDATA%\WhosNext"
+```
+
+Le fichier `whos-next-equipe-AAAAMMJJ.json` apparaît dans le dossier courant. Git l'ignore : il ne doit jamais aller dans le dépôt.
 
 Charger la version construite pour l'essayer :
 

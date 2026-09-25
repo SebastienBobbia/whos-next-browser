@@ -1,12 +1,13 @@
 /**
- * État de l'Équipe : chargement, modifications et sauvegarde.
+ * État de l'Équipe : chargement, modifications, sauvegarde, import et export.
  *
  * Chaque modification est enregistrée tout de suite (PE-08). Les identifiants
- * EQ-xx, IC-xx, LI-xx et PR-xx renvoient à docs/spec/.
+ * EQ-xx, IC-xx, LI-xx, PR-xx et FI-xx renvoient à docs/spec/.
  */
 import { forgetIcon } from "./icons";
 import { prepareImage } from "./images";
 import {
+  loadImage,
   loadTeam,
   onTeamChanged,
   parseTeam,
@@ -15,6 +16,7 @@ import {
   saveTeam,
   teamRecord,
 } from "./storage";
+import { serializeTeamFile, teamFile, type FileMember } from "./team-file";
 import { sameName, type Member } from "./types";
 
 export class TeamStore {
@@ -143,6 +145,53 @@ export class TeamStore {
       else member.absent = true;
     }
     await this.#persist();
+  }
+
+  /** Fichier d'Équipe de l'Équipe actuelle : Membres, Icônes et Liens, sans les Absents (FI-02). */
+  async exportFile(): Promise<string> {
+    const members: FileMember[] = [];
+    for (const member of $state.snapshot(this.members)) {
+      const out: FileMember = { name: member.name };
+      if (member.icon?.type === "emoji") {
+        out.icon = { type: "emoji", value: member.icon.value };
+      } else if (member.icon?.type === "image") {
+        const data = await loadImage(member.icon.id);
+        if (data) out.icon = { type: "image", file: member.icon.file, data };
+      }
+      if (member.link) out.link = member.link;
+      members.push(out);
+    }
+    return serializeTeamFile(teamFile(members));
+  }
+
+  /**
+   * Remplace toute l'Équipe par celle d'un Fichier d'Équipe (FI-05). Un Membre
+   * reste Absent si un Absent de l'ancienne Équipe portait le même nom (FI-06).
+   * Les nouvelles images sont enregistrées avant la suppression des anciennes.
+   */
+  async replaceWith(incoming: FileMember[]): Promise<void> {
+    const absents = this.members.filter((m) => m.absent).map((m) => m.name);
+    const previousImages = this.members.flatMap((m) => (m.icon?.type === "image" ? [m.icon.id] : []));
+
+    const members: Member[] = [];
+    for (const source of incoming) {
+      const member: Member = { name: source.name };
+      if (source.icon?.type === "emoji") {
+        member.icon = { type: "emoji", value: source.icon.value };
+      } else if (source.icon?.type === "image") {
+        const id = crypto.randomUUID();
+        await saveImage(id, source.icon.data);
+        member.icon = { type: "image", id, file: source.icon.file };
+      }
+      if (source.link) member.link = source.link;
+      if (absents.some((name) => sameName(name, source.name))) member.absent = true;
+      members.push(member);
+    }
+
+    this.members = members;
+    await this.#persist();
+    previousImages.forEach(forgetIcon);
+    await removeImages(previousImages);
   }
 
   async #dropImage(id: string): Promise<void> {

@@ -2,7 +2,9 @@
   import Glyph from "../lib/Glyph.svelte";
   import MemberIcon from "../lib/MemberIcon.svelte";
   import { team } from "../lib/team.svelte";
+  import { parseTeamFile, teamFileName, type FileMember } from "../lib/team-file";
   import type { Member } from "../lib/types";
+  import ConfirmDialog from "./ConfirmDialog.svelte";
 
   let {
     onPrepare,
@@ -15,8 +17,51 @@
   let error = $state("");
   let dragFrom = $state<number | null>(null);
   let dropAt = $state<number | null>(null);
+  let importPicker = $state<HTMLInputElement | null>(null);
+  let fileError = $state("");
+  /** Fichier d'Équipe lu, en attente de confirmation du remplacement (FI-04). */
+  let pending = $state<FileMember[] | null>(null);
 
   const count = $derived(team.members.length);
+
+  function members(n: number): string {
+    return `${n} membre${n > 1 ? "s" : ""}`;
+  }
+
+  /** Télécharge le Fichier d'Équipe par le téléchargement habituel du navigateur (FI-02). */
+  async function exportTeam() {
+    const blob = new Blob([await team.exportFile()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = teamFileName(new Date());
+    anchor.click();
+    // Firefox lit encore l'adresse juste après le clic : on la libère plus tard.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function onImportChosen(event: Event) {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    // Rouvrir le sélecteur sur le même fichier doit redéclencher l'import.
+    input.value = "";
+    if (!file) return;
+    const incoming = parseTeamFile(await file.text());
+    if (!incoming) {
+      fileError = "Ce fichier n'est pas un Fichier d'Équipe valide.";
+      return;
+    }
+    fileError = "";
+    // Une Équipe vide est remplacée sans confirmation (FI-04).
+    if (count === 0) await team.replaceWith(incoming);
+    else pending = incoming;
+  }
+
+  async function confirmImport() {
+    const incoming = pending;
+    pending = null;
+    if (incoming) await team.replaceWith(incoming);
+  }
 
   async function add() {
     const result = await team.add(draft);
@@ -71,7 +116,7 @@
 
   <ul class="list" ondragover={(e) => e.preventDefault()} ondrop={onDrop}>
     {#if count === 0}
-      <li class="empty">Aucun membre. Ajoutez des personnes ci-dessus.</li>
+      <li class="empty">Aucun membre. Ajoutez des personnes ci-dessus ou importez un Fichier d'Équipe.</li>
     {/if}
     {#each team.members as member, index (member.name)}
       {#if dropAt === index}<li class="marker"></li>{/if}
@@ -109,12 +154,32 @@
     {#if dropAt === count}<li class="marker"></li>{/if}
   </ul>
 
-  <p class="count">{count} membre{count > 1 ? "s" : ""} dans l'équipe</p>
+  <p class="count">{members(count)} dans l'équipe</p>
+
+  <div class="files">
+    <button class="file-btn" onclick={() => importPicker?.click()}>Importer</button>
+    <button class="file-btn" onclick={exportTeam} disabled={count === 0}>Exporter</button>
+    <input
+      bind:this={importPicker}
+      type="file"
+      accept=".json,application/json"
+      hidden
+      onchange={onImportChosen} />
+  </div>
+  {#if fileError}<p class="error">{fileError}</p>{/if}
 
   <button class="cta" onclick={onPrepare} disabled={count === 0}>
     Préparer le Daily <Glyph name="go" />
   </button>
 </div>
+
+{#if pending}
+  <ConfirmDialog
+    message="Remplacer l'équipe actuelle ({members(count)}) par celle du fichier ({members(pending.length)}) ?"
+    confirmLabel="Remplacer"
+    onConfirm={confirmImport}
+    onCancel={() => (pending = null)} />
+{/if}
 
 <style>
   .view {
@@ -295,6 +360,26 @@
   .del-btn {
     background: var(--red);
     color: var(--red-txt);
+  }
+
+  .files {
+    display: flex;
+    gap: 8px;
+  }
+
+  .file-btn {
+    flex: 1 1 0;
+    height: 30px;
+    background: var(--ink-field);
+    border: 1px solid var(--ink-line);
+    color: var(--txt-dim);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .file-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 
   .cta {

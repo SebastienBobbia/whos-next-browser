@@ -64,7 +64,7 @@ Les exigences PE-03 à PE-06 de l'application de bureau (encodage de `team.json`
 - `link` est facultatif. Sans `link`, le Membre n'a pas de Lien.
 - `version` vaut `1`. Elle n'augmente que si la structure change d'une façon qu'une version précédente de l'extension lirait mal.
 
-**FI-04** `[NOUVEAU]` — `Importer` ouvre le sélecteur de fichiers du système, qui propose en priorité les fichiers `.json`. Si on ferme le sélecteur sans choisir, rien ne change. Si le fichier choisi est valide et que l'Équipe actuelle n'est pas vide, une confirmation s'affiche : `Remplacer les 18 membres actuels par les 20 membres du fichier ?` `[INDICATIF]`. Si l'Équipe actuelle est vide, l'import se fait sans confirmation.
+**FI-04** `[NOUVEAU]` — `Importer` ouvre le sélecteur de fichiers du système, qui propose en priorité les fichiers `.json`. Si on ferme le sélecteur sans choisir, rien ne change. Si le fichier choisi est valide et que l'Équipe actuelle n'est pas vide, une confirmation s'affiche : `Remplacer l'équipe actuelle (18 membres) par celle du fichier (20 membres) ?` `[INDICATIF]`. Si l'Équipe actuelle est vide, l'import se fait sans confirmation.
 
 **FI-05** `[NOUVEAU]` — Après confirmation, l'Équipe est entièrement remplacée par celle du fichier : Membres, ordre, Icônes et Liens. Les images de l'ancienne Équipe sont supprimées du stockage. Refuser la confirmation ne change rien.
 
@@ -77,7 +77,8 @@ Les exigences PE-03 à PE-06 de l'application de bureau (encodage de `team.json`
 - une Icône inutilisable (type inconnu, emoji vide, image absente) est ignorée : le Membre n'a pas d'Icône ;
 - un `link` qui n'est pas une adresse valide au sens de LI-06 est ignoré : le Membre n'a pas de Lien ;
 - les champs inconnus sont ignorés ;
-- des noms qui ne diffèrent que par la casse sont chargés tels quels (EQ-10).
+- des noms qui ne diffèrent que par la casse sont chargés tels quels (EQ-10) ;
+- un Membre dont le nom répète exactement celui d'un Membre précédent est ignoré : un nom identifie un Membre.
 
 **FI-09** `[NOUVEAU]` — Exporter une Équipe puis importer le fichier obtenu redonne exactement la même Équipe : mêmes Membres, même ordre, mêmes Icônes, mêmes Liens. Seules les marques d'Absent suivent FI-06.
 

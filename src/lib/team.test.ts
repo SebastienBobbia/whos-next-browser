@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { browser } from "wxt/browser";
 import { fakeBrowser } from "wxt/testing/fake-browser";
 import { loadImage } from "./storage";
+import { parseTeamFile } from "./team-file";
 import { TeamStore } from "./team.svelte";
 
 // La réduction d'image passe par un canvas, absent des tests : on garde le contenu brut.
@@ -142,6 +143,70 @@ describe("TeamStore", () => {
 
     await team.add("Camille");
     expect(names(await open())).toEqual(["Camille"]);
+  });
+
+  it("exporte Membres, Icônes et Liens, sans les Absents (FI-02)", async () => {
+    const team = await open();
+    for (const name of ["Camille", "Loïc", "Marion"]) await team.add(name);
+    await team.setImage("Camille", new File(["photo"], "czh.png"));
+    await team.setEmoji("Loïc", "🐱");
+    await team.setLink("Camille", "https://jira.entreprise.com/?quickFilter=5711#");
+    await team.saveAbsents(["Camille", "Loïc"]);
+
+    expect(parseTeamFile(await team.exportFile())).toEqual([
+      {
+        name: "Camille",
+        icon: { type: "image", file: "czh.png", data: "data:text/plain,photo" },
+        link: "https://jira.entreprise.com/?quickFilter=5711#",
+      },
+      { name: "Loïc", icon: { type: "emoji", value: "🐱" } },
+      { name: "Marion" },
+    ]);
+  });
+
+  it("remplace toute l'Équipe à l'import, anciennes images comprises (FI-05)", async () => {
+    const team = await open();
+    await team.add("Ancien");
+    await team.setImage("Ancien", new File(["vieux"], "a.png"));
+    const old = imageId(team, "Ancien");
+
+    await team.replaceWith([
+      { name: "Camille", icon: { type: "image", file: "czh.png", data: "data:image/png;base64,AAAA" } },
+      { name: "Loïc", link: "https://jira.entreprise.com/" },
+    ]);
+
+    const reopened = await open();
+    expect(names(reopened)).toEqual(["Camille", "Loïc"]);
+    expect(reopened.members[1]!.link).toBe("https://jira.entreprise.com/");
+    expect(await loadImage(imageId(reopened, "Camille"))).toBe("data:image/png;base64,AAAA");
+    expect(await loadImage(old)).toBeNull();
+  });
+
+  it("garde les Absents dont le nom revient à l'import, casse ignorée (FI-06)", async () => {
+    const team = await open();
+    for (const name of ["Quentin", "Agnès", "Marion"]) await team.add(name);
+    await team.saveAbsents(["Marion"]);
+
+    await team.replaceWith([{ name: "QUENTIN" }, { name: "Marion" }, { name: "Nouveau" }]);
+    expect((await open()).members.map((m) => [m.name, m.absent ?? false])).toEqual([
+      ["QUENTIN", true],
+      ["Marion", false],
+      ["Nouveau", false],
+    ]);
+  });
+
+  it("redonne la même Équipe après export puis import ailleurs (FI-09)", async () => {
+    const team = await open();
+    for (const name of ["Camille", "Loïc"]) await team.add(name);
+    await team.setImage("Camille", new File(["photo"], "czh.png"));
+    await team.setEmoji("Loïc", "🐱");
+    await team.setLink("Loïc", "https://jira.entreprise.com/?quickFilter=5710#");
+    const exported = await team.exportFile();
+
+    fakeBrowser.reset();
+    const colleague = await open();
+    await colleague.replaceWith(parseTeamFile(exported)!);
+    expect(await colleague.exportFile()).toBe(exported);
   });
 
   it("reprend une Équipe modifiée dans un autre panneau", async () => {
