@@ -78,6 +78,7 @@ npm run build            # paquet Chrome dans .output/chrome-mv3
 npm run build:firefox    # paquet Firefox et Zen dans .output/firefox-mv3
 npm run check            # typage Svelte et TypeScript
 npm test                 # domaine, stockage, Fichier d'Équipe, onglets (vitest)
+npx playwright install chromium   # une seule fois, avant le premier test:e2e
 npm run test:e2e         # parcours des vues, extension chargée dans Chromium (Playwright)
 npm run check:coverage   # chaque exigence de la spec a un test ou une ligne de recette
 npm run lint:firefox     # validation du paquet Firefox (web-ext)
