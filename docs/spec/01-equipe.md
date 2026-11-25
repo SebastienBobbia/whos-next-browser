@@ -6,8 +6,8 @@ La vue Équipe sert à gérer la liste des Membres et leurs Liens. C'est la vue 
 
 **EQ-01** — À l'ouverture du panneau, l'extension affiche la vue Équipe. Si une Session est en cours, elle affiche la Session à la place (voir SE-17).
 
-**EQ-02** `[CHANGEMENT]` — La vue affiche les Membres dans l'ordre de l'Équipe. Chaque ligne contient, dans cet ordre `[INDICATIF]` : une poignée de réordonnancement, l'Icône du Membre (si elle existe), son numéro de position à partir de 1 et son nom (`3. Camille`), un bouton Icône, un bouton Lien, un bouton de suppression.
-Application de bureau : pas de bouton Lien.
+**EQ-02** `[CHANGEMENT]` — La vue affiche les Membres dans l'ordre de l'Équipe. Chaque ligne contient, dans cet ordre `[INDICATIF]` : une poignée de réordonnancement, l'Icône du Membre (si elle existe), son numéro de position à partir de 1 et son nom (`3. Camille`), un bouton Icône, un bouton Lien, un bouton Désactiver/Réactiver, un bouton de suppression.
+Application de bureau : pas de bouton Lien ni de bouton Désactiver/Réactiver.
 
 **EQ-03** — Le bouton Icône montre l'état de l'Icône du Membre : l'emoji lui-même pour une Icône emoji, un pictogramme d'image pour une Icône image (`🖼` `[INDICATIF]`), un signe d'ajout pour un Membre sans Icône (`＋` `[INDICATIF]`).
 
@@ -40,10 +40,14 @@ Application de bureau : le message ne mentionnait pas l'import.
 
 **EQ-14** — Relâcher la ligne à sa position d'origine ne change pas l'ordre.
 
-**EQ-15** `[CHANGEMENT]` — Le glisser-déposer ne démarre pas depuis le bouton Icône, le bouton Lien ni le bouton de suppression. Un clic sur ces boutons déclenche leur action.
+**EQ-15** `[CHANGEMENT]` — Le glisser-déposer ne démarre pas depuis le bouton Icône, le bouton Lien, le bouton Désactiver/Réactiver ni le bouton de suppression. Un clic sur ces boutons déclenche leur action.
 Application de bureau : pas de bouton Lien.
 
 **EQ-16** — Quand l'Équipe n'est pas vide, une indication explique le glisser-déposer : `⠿ Maintenir et glisser pour réordonner` `[INDICATIF]`.
+
+## Désactivation (absence longue)
+
+**EQ-20** `[NOUVEAU]` — Le bouton Désactiver/Réactiver permet de marquer un Membre comme Désactivé (`disabled: true`) pour une absence longue (ou de le réactiver). La ligne d'un Membre Désactivé est visuellement estompée (nom barré) et le bouton est mis en valeur. La modification est sauvegardée immédiatement. Si tous les Membres de l'Équipe sont Désactivés, le bouton `Préparer le Daily >>>` est désactivé.
 
 ## Navigation
 

@@ -4,9 +4,9 @@ La vue Présence (« Qui est présent ? ») sert à choisir les Participants ava
 
 ## Affichage
 
-**PR-01** — La vue est reconstruite à partir de l'Équipe à chaque ouverture. Elle affiche donc toujours les derniers ajouts, suppressions, Icônes, imports et Absents.
+**PR-01** — La vue est reconstruite à partir de l'Équipe à chaque ouverture. Elle affiche donc toujours les derniers ajouts, suppressions, Icônes, imports et Absents, en excluant les Membres Désactivés (EQ-20).
 
-**PR-02** — Chaque Membre a une ligne, dans l'ordre de l'Équipe. Une ligne contient une case à cocher avec le nom du Membre, et son Icône (emoji ou image) si elle existe.
+**PR-02** — Chaque Membre actif (non Désactivé) a une ligne, dans l'ordre de l'Équipe. Une ligne contient une case à cocher avec le nom du Membre, et son Icône (emoji ou image) si elle existe.
 
 **PR-03** — Une Icône image s'affiche en conservant ses proportions, dans un carré de 20 px `[INDICATIF]`.
 

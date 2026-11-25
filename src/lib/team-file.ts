@@ -14,8 +14,8 @@ export type FileIcon =
   | { type: "emoji"; value: string }
   | { type: "image"; file: string; data: string };
 
-/** Membre tel qu'il voyage dans le fichier : sans marque d'Absent (FI-02). */
-export type FileMember = { name: string; icon?: FileIcon; link?: string };
+/** Membre tel qu'il voyage dans le fichier : sans marque d'Absent (FI-02), avec état Désactivé éventuel (EQ-20). */
+export type FileMember = { name: string; icon?: FileIcon; link?: string; disabled?: boolean };
 
 export type TeamFile = {
   format: typeof FORMAT;
@@ -91,13 +91,14 @@ export function parseTeamFileWithMeta(text: string): ParsedTeamFile | null {
 
 function parseMember(raw: unknown): FileMember | null {
   if (typeof raw !== "object" || raw === null) return null;
-  const { name, icon, link } = raw as Record<string, unknown>;
+  const { name, icon, link, disabled } = raw as Record<string, unknown>;
   if (typeof name !== "string" || !name.trim()) return null;
   const member: FileMember = { name: name.trim() };
   const parsedIcon = parseIcon(icon);
   if (parsedIcon) member.icon = parsedIcon;
   const parsedLink = typeof link === "string" ? parseLink(link) : null;
   if (parsedLink) member.link = parsedLink;
+  if (disabled === true) member.disabled = true;
   return member;
 }
 

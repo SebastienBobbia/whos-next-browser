@@ -72,7 +72,7 @@ test("montre l'état de l'Icône et du Lien sur chaque ligne (EQ-02, EQ-03, EQ-0
 
   await expect(row(panel, "Camille").locator(".link-btn")).not.toHaveClass(/set/);
   await expect(row(panel, "Yoann").locator(".link-btn")).toHaveClass(/set/);
-  await expect(row(panel, "Yoann").locator("button")).toHaveCount(3);
+  await expect(row(panel, "Yoann").locator("button")).toHaveCount(4);
 });
 
 test("supprime un Membre sans confirmation et renumérote (EQ-12)", async ({ panel }) => {
@@ -104,7 +104,7 @@ test("réordonne par glisser-déposer (EQ-13, EQ-14)", async ({ panel }) => {
 
 test("ne réordonne pas depuis les boutons d'une ligne, qui gardent leur action (EQ-15)", async ({ panel }) => {
   await seedTeam(panel, [{ name: "Adeline" }, { name: "Camille" }]);
-  for (const button of [".icon-btn", ".link-btn", ".del-btn"]) {
+  for (const button of [".icon-btn", ".link-btn", ".disable-btn", ".del-btn"]) {
     await row(panel, "Adeline").locator(button).dragTo(row(panel, "Camille"), {
       targetPosition: { x: 60, y: 32 },
     });
@@ -112,6 +112,28 @@ test("ne réordonne pas depuis les boutons d'une ligne, qui gardent leur action 
   }
   await row(panel, "Adeline").locator(".icon-btn").click();
   await expect(panel.getByRole("dialog", { name: "Icône — Adeline" })).toBeVisible();
+});
+
+test("désactive et réactive un Membre, et masque les Membres désactivés en vue Présence (EQ-20, PR-01)", async ({
+  panel,
+}) => {
+  await seedTeam(panel, [{ name: "Adeline" }, { name: "Camille" }]);
+
+  await row(panel, "Adeline").getByTitle("Désactiver").click();
+  await expect(row(panel, "Adeline")).toHaveClass(/disabled/);
+  await expect(row(panel, "Adeline").getByTitle("Réactiver")).toBeVisible();
+
+  await panel.getByRole("button", { name: /Préparer le Daily/ }).click();
+  await expect(panel.locator(".row .name")).toHaveText(["Camille"]);
+  await expect(panel.locator(".count")).toHaveText("1/1 présents");
+
+  await panel.getByRole("button", { name: "Retour" }).click();
+  await row(panel, "Camille").getByTitle("Désactiver").click();
+  await expect(panel.getByRole("button", { name: /Préparer le Daily/ })).toBeDisabled();
+
+  await row(panel, "Adeline").getByTitle("Réactiver").click();
+  await expect(row(panel, "Adeline")).not.toHaveClass(/disabled/);
+  await expect(panel.getByRole("button", { name: /Préparer le Daily/ })).toBeEnabled();
 });
 
 test("ouvre la vue Présence (EQ-17, EQ-18)", async ({ panel }) => {

@@ -6,13 +6,13 @@ Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbi
 
 ## Fonctionnalités
 
-- **Équipe** : ajout, suppression et réordonnancement des membres, avec une icône emoji ou une image par personne.
+- **Équipe** : ajout, suppression, désactivation (pour les absences longues) et réordonnancement des membres, avec une icône emoji ou une image par personne.
 - **Lien** : une adresse web par personne, par exemple son filtre sur le tableau Jira.
 - **Présence** : cocher les personnes présentes au daily. Synchronisation automatique avec le **Planning** interne sur le créneau du daily (09h15–10h00) pour décocher les personnes indisponibles et afficher leur statut (`Absence`, `Réunion Interne R&D`, etc.) à côté du prénom.
 - **Session** : une tuile par personne restante. Un clic sur la tuile de la personne qui prend la parole la retire et charge son Lien dans l'onglet Jira.
 - **Tirage au sort** : désigne au hasard quelqu'un qui n'a pas encore parlé.
 - **Annulation** : efface la désignation, puis rend leur tuile aux personnes déjà passées.
-- **Fichier d'Équipe** : export et import de l'équipe complète (membres, icônes, liens, adresse du planning) pour la partager entre collègues.
+- **Fichier d'Équipe** : export et import de l'équipe complète (membres, icônes, liens, membres désactivés, adresse du planning) pour la partager entre collègues.
 
 ## Installer l'extension
 

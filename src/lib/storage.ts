@@ -101,13 +101,14 @@ export async function savePlanningAuth(auth: PlanningAuth | null): Promise<void>
 
 function parseMember(raw: unknown): Member | null {
   if (typeof raw !== "object" || raw === null) return null;
-  const { name, icon, link, absent } = raw as Record<string, unknown>;
+  const { name, icon, link, absent, disabled } = raw as Record<string, unknown>;
   if (typeof name !== "string" || !name.trim()) return null;
   const member: Member = { name };
   const parsedIcon = parseIcon(icon);
   if (parsedIcon) member.icon = parsedIcon;
   if (typeof link === "string" && link) member.link = link;
   if (absent === true) member.absent = true;
+  if (disabled === true) member.disabled = true;
   return member;
 }
 

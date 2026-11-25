@@ -26,7 +26,7 @@ describe("Fichier d'Équipe", () => {
     const members = [
       { name: "Camille", icon: { type: "image" as const, file: "czh.png", data: "data:image/png;base64,AAAA" }, link: LINK },
       { name: "Loïc", icon: { type: "emoji" as const, value: "🐱" } },
-      { name: "Marion" },
+      { name: "Marion", disabled: true },
     ];
     expect(parseTeamFile(serializeTeamFile(teamFile(members)))).toEqual(members);
   });

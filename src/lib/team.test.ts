@@ -135,6 +135,25 @@ describe("TeamStore", () => {
     expect((await open()).members.map((m) => m.absent ?? false)).toEqual([true, false, true]);
   });
 
+  it("désactive et réactive un Membre, et l'exporte dans le Fichier d'Équipe (EQ-20, FI-02)", async () => {
+    const team = await open();
+    for (const name of ["Camille", "Marion"]) await team.add(name);
+    await team.saveAbsents(["Camille"]);
+    expect(team.members[1]!.absent).toBe(true);
+
+    await team.toggleDisabled("Marion");
+    expect((await open()).members[1]!.disabled).toBe(true);
+    expect(parseTeamFile(await team.exportFile())).toEqual([
+      { name: "Camille" },
+      { name: "Marion", disabled: true },
+    ]);
+
+    await team.toggleDisabled("Marion");
+    const reopened = await open();
+    expect(reopened.members[1]!.disabled).toBeUndefined();
+    expect(reopened.members[1]!.absent).toBeUndefined();
+  });
+
   it("démarre vide sur des données illisibles, sans les écraser avant une modification (PE-07)", async () => {
     await browser.storage.local.set({ team: { version: 99, members: "?" } });
     const team = await open();

@@ -24,6 +24,7 @@ export const GLYPHS = {
   go: '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
   refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>',
   key: '<circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L21 2"/><path d="M18 5l3 3"/><path d="M15 8l3 3"/>',
+  power: '<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><path d="M12 2v10"/>',
 } as const;
 
 export type GlyphName = keyof typeof GLYPHS;
