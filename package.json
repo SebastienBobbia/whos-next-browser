@@ -1,6 +1,6 @@
 {
   "name": "whos-next-browser",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Suivi des prises de parole pendant le daily, dans le panneau latéral du navigateur",
   "type": "module",
   "private": true,

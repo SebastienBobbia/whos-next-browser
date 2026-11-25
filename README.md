@@ -4,8 +4,6 @@ Extension de navigateur pour les daily meetings : savoir qui n'a pas encore pris
 
 Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbia/whos-next) (Tauri 2), qui reste disponible mais n'évolue plus. Les deux ne partagent aucune donnée.
 
-> En cours de développement : toutes les fonctions marchent et sont testées. Reste la publication automatique des paquets dans les [releases](https://github.com/SebastienBobbia/whos-next-browser/releases). En attendant, construisez l'extension vous-même (voir « Pour développer »).
-
 ## Fonctionnalités
 
 - **Équipe** : ajout, suppression et réordonnancement des membres, avec une icône emoji ou une image par personne.
