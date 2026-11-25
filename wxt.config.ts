@@ -35,8 +35,8 @@ export default defineConfig({
     // Stockage de l'Équipe et de la Session, adresse des onglets pour les Liens, script
     // des Filtres rapides (DI-11). WXT ajoute sidePanel pour Chrome.
     permissions: ["storage", "tabs", "scripting"],
-    // Accès aux sites des Tableaux Jira, demandé site par site pendant l'utilisation (LI-16) :
-    // l'adresse du Jira n'est jamais écrite dans le paquet (ADR 0002).
+    // Accès aux sites des Tableaux Jira et du Planning, demandé site par site pendant l'utilisation (LI-16, PR-12) :
+    // l'adresse du Jira et du Planning n'est jamais écrite dans le paquet (ADR 0002, ADR 0005).
     optional_host_permissions: ["https://*/*", "http://*/*"],
     // Sans action, pas d'icône dans la barre d'outils pour ouvrir le panneau (PA-02).
     action: {

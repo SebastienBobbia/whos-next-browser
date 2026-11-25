@@ -8,19 +8,21 @@ import { forgetIcon } from "./icons";
 import { prepareImage } from "./images";
 import {
   loadImage,
-  loadTeam,
+  loadTeamRecord,
   onTeamChanged,
-  parseTeam,
+  parseTeamRecord,
   removeImages,
   saveImage,
   saveTeam,
   teamRecord,
 } from "./storage";
+import { parseLink } from "./link";
 import { serializeTeamFile, teamFile, type FileMember } from "./team-file";
 import { sameName, type Member } from "./types";
 
 export class TeamStore {
   members = $state<Member[]>([]);
+  planningUrl = $state<string | undefined>(undefined);
 
   /** Dernier enregistrement écrit par ce panneau, pour ignorer son propre écho. */
   #written: string | null = null;
@@ -31,7 +33,9 @@ export class TeamStore {
    * écrasées qu'à la première modification (PE-07).
    */
   async load(): Promise<void> {
-    this.members = (await loadTeam()) ?? [];
+    const loaded = await loadTeamRecord();
+    this.members = loaded?.members ?? [];
+    this.planningUrl = loaded?.planningUrl;
     this.#unsubscribe ??= onTeamChanged((value) => this.#receive(value));
   }
 
@@ -44,12 +48,15 @@ export class TeamStore {
   /** Reprend une Équipe modifiée par un autre panneau ouvert. */
   #receive(value: unknown): void {
     if (JSON.stringify(value) === this.#written) return;
-    const members = parseTeam(value);
-    if (members) this.members = members;
+    const parsed = parseTeamRecord(value);
+    if (parsed) {
+      this.members = parsed.members;
+      this.planningUrl = parsed.planningUrl;
+    }
   }
 
   async #persist(): Promise<void> {
-    const record = teamRecord($state.snapshot(this.members));
+    const record = teamRecord($state.snapshot(this.members), this.planningUrl);
     this.#written = JSON.stringify(record);
     await saveTeam(record);
   }
@@ -147,7 +154,23 @@ export class TeamStore {
     await this.#persist();
   }
 
-  /** Fichier d'Équipe de l'Équipe actuelle : Membres, Icônes et Liens, sans les Absents (FI-02). */
+  /** Définit l'adresse du Planning (PE-14), ou la retire avec null. */
+  async setPlanningUrl(rawUrl: string | null): Promise<{ ok: true } | { ok: false; error: string }> {
+    if (!rawUrl || !rawUrl.trim()) {
+      this.planningUrl = undefined;
+      await this.#persist();
+      return { ok: true };
+    }
+    const valid = parseLink(rawUrl);
+    if (!valid) {
+      return { ok: false, error: "Veuillez entrer une adresse http:// ou https:// valide." };
+    }
+    this.planningUrl = valid;
+    await this.#persist();
+    return { ok: true };
+  }
+
+  /** Fichier d'Équipe de l'Équipe actuelle : Membres, Icônes, Liens et planningUrl, sans les Absents (FI-02, PE-14). */
   async exportFile(): Promise<string> {
     const members: FileMember[] = [];
     for (const member of $state.snapshot(this.members)) {
@@ -161,7 +184,7 @@ export class TeamStore {
       if (member.link) out.link = member.link;
       members.push(out);
     }
-    return serializeTeamFile(teamFile(members));
+    return serializeTeamFile(teamFile(members, this.planningUrl));
   }
 
   /**
@@ -169,7 +192,7 @@ export class TeamStore {
    * reste Absent si un Absent de l'ancienne Équipe portait le même nom (FI-06).
    * Les nouvelles images sont enregistrées avant la suppression des anciennes.
    */
-  async replaceWith(incoming: FileMember[]): Promise<void> {
+  async replaceWith(incoming: FileMember[], planningUrl?: string): Promise<void> {
     const absents = this.members.filter((m) => m.absent).map((m) => m.name);
     const previousImages = this.members.flatMap((m) => (m.icon?.type === "image" ? [m.icon.id] : []));
 
@@ -189,6 +212,9 @@ export class TeamStore {
     }
 
     this.members = members;
+    if (planningUrl !== undefined) {
+      this.planningUrl = planningUrl;
+    }
     await this.#persist();
     previousImages.forEach(forgetIcon);
     await removeImages(previousImages);

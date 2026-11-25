@@ -10,11 +10,11 @@ Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbi
 
 - **Équipe** : ajout, suppression et réordonnancement des membres, avec une icône emoji ou une image par personne.
 - **Lien** : une adresse web par personne, par exemple son filtre sur le tableau Jira.
-- **Présence** : cocher les personnes présentes au daily. Les personnes décochées reviennent décochées au daily suivant.
+- **Présence** : cocher les personnes présentes au daily. Synchronisation automatique avec le **Planning** interne sur le créneau du daily (09h15–10h00) pour décocher les personnes indisponibles et afficher leur statut (`Absence`, `Réunion Interne R&D`, etc.) à côté du prénom.
 - **Session** : une tuile par personne restante. Un clic sur la tuile de la personne qui prend la parole la retire et charge son Lien dans l'onglet Jira.
 - **Tirage au sort** : désigne au hasard quelqu'un qui n'a pas encore parlé.
 - **Annulation** : efface la désignation, puis rend leur tuile aux personnes déjà passées.
-- **Fichier d'Équipe** : export et import de l'équipe complète (membres, icônes, liens) pour la partager entre collègues.
+- **Fichier d'Équipe** : export et import de l'équipe complète (membres, icônes, liens, adresse du planning) pour la partager entre collègues.
 
 ## Installer l'extension
 
@@ -41,9 +41,9 @@ Portage de l'application de bureau [whos-next](https://github.com/SebastienBobbi
 ### Autorisations
 
 - **Onglets** : l'extension lit l'adresse des onglets pour retrouver l'onglet du tableau Jira, et pour le bouton **Prendre l'onglet actuel**. Chrome décrit cette autorisation comme « Lire votre historique de navigation ».
-- **Accès au site Jira** : demandé une seule fois, la première fois que vous cliquez sur **Valider** dans la fenêtre d'un Lien Jira, ou sur **Démarrer le Daily**. Acceptez : l'extension peut alors cocher le filtre de la personne directement dans la page, sans la recharger. Si vous refusez, tout fonctionne, mais la page Jira se recharge à chaque personne.
+- **Accès au site Jira et au Planning** : demandé une seule fois par site (lors de la validation d'un Lien Jira / démarrage du daily, ou lors de la configuration du Planning). Acceptez : l'extension peut alors cocher le filtre Jira de la personne sans recharger la page, et lire les absences du jour sur le Planning.
 
-L'extension n'envoie aucune donnée. Dans Jira, elle ne fait que cocher et décocher les filtres rapides.
+L'extension n'envoie aucune donnée externe. Dans Jira, elle ne fait que cocher et décocher les filtres rapides ; sur le Planning, elle lit uniquement les événements du jour.
 
 ## Premier lancement
 

@@ -13,14 +13,28 @@ import type { Icon, Member } from "./types";
 const TEAM_KEY = "team";
 const IMAGE_PREFIX = "image:";
 const SESSION_KEY = "session";
+const PLANNING_AUTH_KEY = "planning_auth";
 
 /** Version du format interne de l'Équipe (PE-02). */
 const TEAM_VERSION = 1;
 
-export type TeamRecord = { version: typeof TEAM_VERSION; members: Member[] };
+export type TeamRecord = {
+  version: typeof TEAM_VERSION;
+  planningUrl?: string;
+  members: Member[];
+};
 
-export function teamRecord(members: Member[]): TeamRecord {
-  return { version: TEAM_VERSION, members };
+export type PlanningAuth = {
+  username: string;
+  password: string;
+};
+
+export function teamRecord(members: Member[], planningUrl?: string): TeamRecord {
+  return {
+    version: TEAM_VERSION,
+    ...(planningUrl ? { planningUrl } : {}),
+    members,
+  };
 }
 
 /**
@@ -33,19 +47,56 @@ export async function loadTeam(): Promise<Member[] | null> {
   return parseTeam(stored[TEAM_KEY]);
 }
 
+export async function loadTeamRecord(): Promise<{ members: Member[]; planningUrl?: string } | null> {
+  const stored = await browser.storage.local.get(TEAM_KEY);
+  if (!(TEAM_KEY in stored)) return { members: [] };
+  return parseTeamRecord(stored[TEAM_KEY]);
+}
+
 export async function saveTeam(record: TeamRecord): Promise<void> {
   await browser.storage.local.set({ [TEAM_KEY]: record });
 }
 
 /** Relit un enregistrement de l'Équipe, ou null s'il est illisible. Un Membre invalide est ignoré. */
 export function parseTeam(value: unknown): Member[] | null {
+  return parseTeamRecord(value)?.members ?? null;
+}
+
+export function parseTeamRecord(
+  value: unknown,
+): { members: Member[]; planningUrl?: string } | null {
   if (typeof value !== "object" || value === null) return null;
-  const { version, members } = value as Record<string, unknown>;
+  const { version, members, planningUrl } = value as Record<string, unknown>;
   if (version !== TEAM_VERSION || !Array.isArray(members)) return null;
-  return members.flatMap((raw) => {
+  const parsedMembers = members.flatMap((raw) => {
     const member = parseMember(raw);
     return member ? [member] : [];
   });
+  return {
+    members: parsedMembers,
+    ...(typeof planningUrl === "string" && planningUrl ? { planningUrl } : {}),
+  };
+}
+
+export async function loadPlanningAuth(): Promise<PlanningAuth | null> {
+  const stored = await browser.storage.local.get(PLANNING_AUTH_KEY);
+  const raw = stored[PLANNING_AUTH_KEY];
+  if (typeof raw !== "object" || raw === null) return null;
+  const { username, password } = raw as Record<string, unknown>;
+  if (typeof username === "string" && username.trim() && typeof password === "string" && password) {
+    return { username: username.trim(), password };
+  }
+  return null;
+}
+
+export async function savePlanningAuth(auth: PlanningAuth | null): Promise<void> {
+  if (auth && auth.username.trim() && auth.password) {
+    await browser.storage.local.set({
+      [PLANNING_AUTH_KEY]: { username: auth.username.trim(), password: auth.password },
+    });
+  } else {
+    await browser.storage.local.remove(PLANNING_AUTH_KEY);
+  }
 }
 
 function parseMember(raw: unknown): Member | null {
