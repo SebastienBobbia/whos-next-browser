@@ -2,7 +2,7 @@
   import Glyph from "../lib/Glyph.svelte";
   import MemberIcon from "../lib/MemberIcon.svelte";
   import { team } from "../lib/team.svelte";
-  import { parseTeamFile, teamFileName, type FileMember } from "../lib/team-file";
+  import { parseTeamFileWithMeta, teamFileName, type ParsedTeamFile } from "../lib/team-file";
   import type { Member } from "../lib/types";
   import ConfirmDialog from "./ConfirmDialog.svelte";
 
@@ -20,7 +20,7 @@
   let importPicker = $state<HTMLInputElement | null>(null);
   let fileError = $state("");
   /** Fichier d'Équipe lu, en attente de confirmation du remplacement (FI-04). */
-  let pending = $state<FileMember[] | null>(null);
+  let pending = $state<ParsedTeamFile | null>(null);
 
   const count = $derived(team.members.length);
 
@@ -46,21 +46,21 @@
     // Rouvrir le sélecteur sur le même fichier doit redéclencher l'import.
     input.value = "";
     if (!file) return;
-    const incoming = parseTeamFile(await file.text());
+    const incoming = parseTeamFileWithMeta(await file.text());
     if (!incoming) {
       fileError = "Ce fichier n'est pas un Fichier d'Équipe valide.";
       return;
     }
     fileError = "";
     // Une Équipe vide est remplacée sans confirmation (FI-04).
-    if (count === 0) await team.replaceWith(incoming);
+    if (count === 0) await team.replaceWith(incoming.members, incoming.planningUrl);
     else pending = incoming;
   }
 
   async function confirmImport() {
     const incoming = pending;
     pending = null;
-    if (incoming) await team.replaceWith(incoming);
+    if (incoming) await team.replaceWith(incoming.members, incoming.planningUrl);
   }
 
   async function add() {
@@ -183,7 +183,7 @@
 
 {#if pending}
   <ConfirmDialog
-    message="Remplacer l'équipe actuelle ({members(count)}) par celle du fichier ({members(pending.length)}) ?"
+    message="Remplacer l'équipe actuelle ({members(count)}) par celle du fichier ({members(pending.members.length)}) ?"
     confirmLabel="Remplacer"
     onConfirm={confirmImport}
     onCancel={() => (pending = null)} />

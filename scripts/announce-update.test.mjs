@@ -2,12 +2,13 @@ import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import { announce, GECKO_ID } from "./announce-update.mjs";
 
-const empty = () => JSON.parse(fs.readFileSync("updates.json", "utf8"));
+const empty = () => ({ addons: { [GECKO_ID]: { updates: [] } } });
 
 describe("announce (DI-15)", () => {
   it("vise l'identifiant Firefox du manifeste", () => {
+    const onDisk = JSON.parse(fs.readFileSync("updates.json", "utf8"));
     expect(fs.readFileSync("wxt.config.ts", "utf8")).toContain(`"${GECKO_ID}"`);
-    expect(Object.keys(empty().addons)).toEqual([GECKO_ID]);
+    expect(Object.keys(onDisk.addons)).toEqual([GECKO_ID]);
   });
 
   it("ajoute la version avec le lien de la release et l'empreinte du .xpi", () => {

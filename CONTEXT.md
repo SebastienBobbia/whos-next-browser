@@ -47,8 +47,16 @@ Membre coché présent pour une Session donnée.
 _Avoid_: Présent, attendee
 
 **Absent**:
-Membre décoché lors du lancement d'une Session, qui reste décoché pour la suivante.
+Membre décoché pour une Session donnée (mémorisé d'une Session à l'autre, ou décoché automatiquement d'après le Planning).
 _Avoid_: Excusé, décoché, non-participant
+
+**Planning**:
+Le WebPlanning R&D interne (`WebplanningRD`), consulté à l'ouverture de la vue Présence pour détecter les Membres indisponibles sur le créneau du daily (9h15–10h00).
+_Avoid_: Webplanning, WebplanningRD, agenda, calendrier, Outlook
+
+**Statut Planning**:
+Catégorie d'événement issue du Planning (sans détail, par ex. `Absence`, `Réunion Interne R&D`), affichée à côté du nom d'un Membre dans la vue Présence lorsqu'elle chevauche le créneau du daily.
+_Avoid_: Motif d'absence, raison, état planning, détail d'absence
 
 **Restant**:
 Participant qui n'a pas encore parlé dans la Session.

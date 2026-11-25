@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { parseTeamFile, serializeTeamFile, teamFile, teamFileName } from "./team-file";
+import {
+  parseTeamFile,
+  parseTeamFileWithMeta,
+  serializeTeamFile,
+  teamFile,
+  teamFileName,
+} from "./team-file";
 
 const LINK = "https://jira.entreprise.com/secure/RapidBoard.jspa?rapidView=528&quickFilter=5710#";
 
@@ -62,5 +68,15 @@ describe("Fichier d'Équipe", () => {
   it("garde les noms qui ne diffèrent que par la casse, pas un nom répété (EQ-10)", () => {
     const members = parseTeamFile(file([{ name: "Alice" }, { name: "alice" }, { name: "Alice" }]));
     expect(members?.map((m) => m.name)).toEqual(["Alice", "alice"]);
+  });
+
+  it("transporte l'adresse facultative du Planning (PE-14)", () => {
+    const serialized = serializeTeamFile(
+      teamFile([{ name: "Camille" }], "http://10.64.101.2/WebplanningRD"),
+    );
+    expect(parseTeamFileWithMeta(serialized)).toEqual({
+      members: [{ name: "Camille" }],
+      planningUrl: "http://10.64.101.2/WebplanningRD",
+    });
   });
 });

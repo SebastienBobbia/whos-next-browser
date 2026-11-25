@@ -31,7 +31,7 @@ Les exigences DI-06 (remplacement de l'ancienne application Python) et DI-07 (me
 - le panneau latéral (Chrome) ;
 - les onglets (`tabs`), pour lire l'adresse des onglets (LI-04, LI-10) ;
 - l'injection de script (`scripting`), pour les Filtres rapides (LI-11) ;
-- l'accès aux sites des Tableaux Jira, demandé site par site pendant l'utilisation (LI-16), jamais à l'installation.
+- l'accès aux sites des Tableaux Jira et au serveur du Planning, demandé site par site pendant l'utilisation (LI-16, PR-12), jamais à l'installation.
 
 Firefox et Zen affichent l'autorisation des onglets à l'installation (« Accéder aux onglets du navigateur »). Chrome ne montre pas de demande pour une extension chargée non empaquetée, mais affiche cette autorisation dans les détails de l'extension (« Lire votre historique de navigation »). L'accès à un site s'affiche au moment de la demande, par exemple « Lire et modifier vos données sur jira.entreprise.com ».
 

@@ -17,10 +17,26 @@ export type FileIcon =
 /** Membre tel qu'il voyage dans le fichier : sans marque d'Absent (FI-02). */
 export type FileMember = { name: string; icon?: FileIcon; link?: string };
 
-export type TeamFile = { format: typeof FORMAT; version: typeof VERSION; members: FileMember[] };
+export type TeamFile = {
+  format: typeof FORMAT;
+  version: typeof VERSION;
+  planningUrl?: string;
+  members: FileMember[];
+};
 
-export function teamFile(members: FileMember[]): TeamFile {
-  return { format: FORMAT, version: VERSION, members };
+export type ParsedTeamFile = {
+  members: FileMember[];
+  planningUrl?: string;
+};
+
+export function teamFile(members: FileMember[], planningUrl?: string): TeamFile {
+  const validPlanning = planningUrl ? parseLink(planningUrl) : null;
+  return {
+    format: FORMAT,
+    version: VERSION,
+    ...(validPlanning ? { planningUrl: validPlanning } : {}),
+    members,
+  };
 }
 
 /** JSON indenté de 2 espaces, accents et emojis écrits tels quels (FI-03). */
@@ -39,6 +55,13 @@ export function teamFileName(date: Date): string {
  * une Icône ou un Lien inutilisable est ignoré (FI-08).
  */
 export function parseTeamFile(text: string): FileMember[] | null {
+  return parseTeamFileWithMeta(text)?.members ?? null;
+}
+
+/**
+ * Lit un Fichier d'Équipe avec ses métadonnées facultatives (`planningUrl`, PE-14).
+ */
+export function parseTeamFileWithMeta(text: string): ParsedTeamFile | null {
   let value: unknown;
   try {
     value = JSON.parse(text);
@@ -46,7 +69,7 @@ export function parseTeamFile(text: string): FileMember[] | null {
     return null;
   }
   if (typeof value !== "object" || value === null) return null;
-  const { format, version, members } = value as Record<string, unknown>;
+  const { format, version, members, planningUrl } = value as Record<string, unknown>;
   if (format !== FORMAT || version !== VERSION || !Array.isArray(members)) return null;
 
   const seen = new Set<string>();
@@ -59,7 +82,11 @@ export function parseTeamFile(text: string): FileMember[] | null {
     seen.add(member.name);
     result.push(member);
   }
-  return result;
+  const parsedPlanning = typeof planningUrl === "string" ? parseLink(planningUrl) : null;
+  return {
+    members: result,
+    ...(parsedPlanning ? { planningUrl: parsedPlanning } : {}),
+  };
 }
 
 function parseMember(raw: unknown): FileMember | null {

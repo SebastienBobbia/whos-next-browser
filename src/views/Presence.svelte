@@ -1,8 +1,17 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import Glyph from "../lib/Glyph.svelte";
   import MemberIcon from "../lib/MemberIcon.svelte";
+  import {
+    fetchPlanning,
+    hasPlanningAccess,
+    requestPlanningAccess,
+    saveConfigAndFetchPlanning,
+  } from "../lib/planning";
+  import { loadPlanningAuth } from "../lib/storage";
   import { requestBoardAccess } from "../lib/tabs";
   import { team } from "../lib/team.svelte";
+  import { normalizePlanningName, type PlanningResult } from "../lib/types";
 
   let { onBack, onStart }: { onBack: () => void; onStart: (attendees: string[]) => void } =
     $props();
@@ -12,11 +21,147 @@
     Object.fromEntries(team.members.map((m) => [m.name, !m.absent])),
   );
 
+  // Statut Planning affiché à côté du prénom (PR-14, PR-16).
+  let statuses = $state<Record<string, string>>({});
+  let planningLoading = $state(false);
+  let planningState = $state<PlanningResult["state"] | "idle">("idle");
+  let planningError = $state("");
+
+  // Modale de configuration du Planning (PR-12, PE-14).
+  let showConfigDialog = $state(false);
+  let configUrl = $state("");
+  let configUsername = $state("");
+  let configPassword = $state("");
+  let configSaving = $state(false);
+  let configError = $state("");
+
   const present = $derived(team.members.filter((m) => checked[m.name]).map((m) => m.name));
 
   function setAll(value: boolean) {
     checked = Object.fromEntries(team.members.map((m) => [m.name, value]));
   }
+
+  function applyPlanningResult(res: PlanningResult) {
+    planningState = res.state;
+    if (res.state === "error") {
+      planningError = res.message;
+      return;
+    }
+    planningError = "";
+    if (res.state !== "ready") return;
+
+    const nextChecked = { ...checked };
+    const nextStatuses: Record<string, string> = {};
+
+    for (const member of team.members) {
+      const key = normalizePlanningName(member.name);
+      const entry = res.resources[key];
+      if (!entry) {
+        // PR-15 : Membre absent des ressources du Planning -> on conserve l'état issu de l'Équipe.
+        continue;
+      }
+      if (entry.unavailable) {
+        nextChecked[member.name] = false;
+        if (entry.status) nextStatuses[member.name] = entry.status;
+      } else {
+        nextChecked[member.name] = true;
+      }
+    }
+
+    checked = nextChecked;
+    statuses = nextStatuses;
+  }
+
+  async function syncPlanning() {
+    if (!team.planningUrl) {
+      planningState = "unconfigured";
+      return;
+    }
+    planningLoading = true;
+    planningError = "";
+    try {
+      const res = await fetchPlanning(team.planningUrl);
+      applyPlanningResult(res);
+    } finally {
+      planningLoading = false;
+    }
+  }
+
+  function onRefreshClick() {
+    // Si l'autorisation hôte manque, la demander pendant le geste de clic avant tout await (PR-12).
+    const permPromise = requestPlanningAccess(team.planningUrl);
+    void permPromise.then(() => syncPlanning());
+  }
+
+  async function openConfigDialog() {
+    configError = "";
+    configUrl = team.planningUrl ?? "";
+    const auth = await loadPlanningAuth();
+    configUsername = auth?.username ?? "";
+    configPassword = "";
+    showConfigDialog = true;
+  }
+
+  function closeConfigDialog() {
+    showConfigDialog = false;
+    configError = "";
+  }
+
+  async function submitConfig(e: SubmitEvent) {
+    e.preventDefault();
+    const rawUrl = configUrl.trim();
+    if (!rawUrl) {
+      await team.setPlanningUrl(null);
+      planningState = "unconfigured";
+      statuses = {};
+      closeConfigDialog();
+      return;
+    }
+
+    // Demander la permission hôte de façon synchrone dans le gestionnaire d'événement,
+    // puis attendre explicitement la réponse de l'utilisateur avant tout fetch() (Firefox MV3).
+    const permPromise = requestPlanningAccess(rawUrl);
+
+    const urlResult = await team.setPlanningUrl(rawUrl);
+    if (!urlResult.ok) {
+      configError = urlResult.error;
+      return;
+    }
+
+    configSaving = true;
+    configError = "";
+    try {
+      const granted = await permPromise;
+      if (!granted && !(await hasPlanningAccess(team.planningUrl!))) {
+        planningState = "missing_permission";
+        configError = "Veuillez autoriser l'accès au serveur du planning dans la popup du navigateur.";
+        return;
+      }
+      const res = await saveConfigAndFetchPlanning(
+        team.planningUrl!,
+        configUsername,
+        configPassword,
+      );
+      applyPlanningResult(res);
+      if (res.state === "auth_failed") {
+        configError = "Identifiant ou mot de passe refusé par le planning.";
+      } else if (res.state === "auth_required") {
+        configError = "Session non connectée : renseignez votre identifiant et mot de passe.";
+      } else if (res.state === "missing_permission") {
+        configError = "Autorisation d'accès au serveur du planning refusée.";
+      } else if (res.state === "error") {
+        configError = res.message;
+      } else {
+        closeConfigDialog();
+      }
+    } finally {
+      configSaving = false;
+    }
+  }
+
+  onMount(() => {
+    void syncPlanning();
+  });
 
   async function start() {
     if (present.length === 0) return;
@@ -40,7 +185,45 @@
     <div class="toggles">
       <button class="toggle on" onclick={() => setAll(true)}>Tout cocher</button>
       <button class="toggle" onclick={() => setAll(false)}>Tout décocher</button>
+      {#if planningState === "unconfigured" || planningState === "auth_required" || planningState === "auth_failed"}
+        <button
+          class="planning-btn"
+          class:warn={planningState === "auth_required" || planningState === "auth_failed"}
+          onclick={openConfigDialog}
+          title="Configurer le planning">
+          <Glyph name="key" size={13} />
+          {planningState === "auth_failed" ? "Identifiants refusés" : "Planning"}
+        </button>
+      {:else if planningState === "missing_permission"}
+        <button
+          class="planning-btn warn"
+          onclick={onRefreshClick}
+          title="Autoriser l'accès au serveur du planning">
+          <Glyph name="refresh" size={13} />
+          Autoriser planning
+        </button>
+      {:else}
+        <button
+          class="planning-icon-btn"
+          onclick={onRefreshClick}
+          disabled={planningLoading}
+          aria-label="Rafraîchir le planning"
+          title={planningState === "error" ? planningError : "Rafraîchir le planning"}>
+          <Glyph name="refresh" size={14} />
+        </button>
+        <button
+          class="planning-icon-btn"
+          onclick={openConfigDialog}
+          aria-label="Configuration du planning"
+          title="Configurer le planning">
+          <Glyph name="key" size={13} />
+        </button>
+      {/if}
     </div>
+  {/if}
+
+  {#if planningState === "error" && planningError}
+    <p class="planning-msg" role="status">{planningError}</p>
   {/if}
 
   <ul class="list">
@@ -53,6 +236,9 @@
           </span>
           <MemberIcon {member} size={22} />
           <span class="name">{member.name}</span>
+          {#if statuses[member.name]}
+            <span class="status" title={statuses[member.name]}>{statuses[member.name]}</span>
+          {/if}
         </label>
       </li>
     {/each}
@@ -67,6 +253,53 @@
     </button>
   </div>
 </div>
+
+{#if showConfigDialog}
+  <div
+    class="backdrop"
+    role="button"
+    tabindex="-1"
+    onclick={closeConfigDialog}
+    onkeydown={(e) => e.key === "Escape" && closeConfigDialog()}>
+  </div>
+  <form class="cred-dialog" aria-label="Configuration du planning" onsubmit={submitConfig}>
+    <h2>Configuration du Planning</h2>
+    <p class="cred-sub">
+      L'adresse est partagée dans le Fichier d'Équipe ; vos identifiants restent locaux.
+    </p>
+    <label class="field">
+      <span>Adresse du planning</span>
+      <input
+        type="url"
+        class="text-input"
+        placeholder="http://.../WebplanningRD"
+        bind:value={configUrl} />
+    </label>
+    <label class="field">
+      <span>Identifiant (facultatif si déjà connecté)</span>
+      <input
+        type="text"
+        class="text-input"
+        bind:value={configUsername}
+        autocomplete="username" />
+    </label>
+    <label class="field">
+      <span>Mot de passe</span>
+      <input
+        type="password"
+        class="text-input"
+        bind:value={configPassword}
+        autocomplete="current-password" />
+    </label>
+    {#if configError}
+      <p class="cred-error">{configError}</p>
+    {/if}
+    <div class="cred-actions">
+      <button type="button" class="ghost" onclick={closeConfigDialog}>Annuler</button>
+      <button type="submit" class="primary" disabled={configSaving}>Enregistrer</button>
+    </div>
+  </form>
+{/if}
 
 <style>
   .view {
@@ -134,6 +367,50 @@
     color: var(--txt);
   }
 
+  .planning-btn {
+    height: 30px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--ink-field);
+    border: 1px solid var(--ink-line);
+    color: var(--txt-dim);
+    white-space: nowrap;
+  }
+
+  .planning-btn.warn {
+    background: #3a2335;
+    border-color: #6d3b5c;
+    color: #f5d0fe;
+  }
+
+  .planning-icon-btn {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink-field);
+    border: 1px solid var(--ink-line);
+    color: var(--txt-dim);
+  }
+
+  .planning-icon-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .planning-msg {
+    margin: -4px 0 0;
+    font-size: 11px;
+    color: var(--red-txt);
+    text-align: center;
+  }
+
   .list {
     flex: 1 1 0;
     min-height: 0;
@@ -169,7 +446,7 @@
 
   /* La case réelle couvre toute la ligne : c'est elle qui reçoit les clics
      et le focus clavier, la case dessinée n'est qu'un rendu. */
-  input {
+  .row input {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -191,7 +468,7 @@
     justify-content: center;
   }
 
-  input:checked + .box {
+  .row input:checked + .box {
     background: var(--blue);
     border-color: transparent;
     color: #fff;
@@ -209,6 +486,116 @@
 
   .row.off .name {
     color: var(--txt-faint);
+  }
+
+  .status {
+    flex-shrink: 0;
+    max-width: 135px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #2e294e;
+    border: 1px solid #483d73;
+    color: #d8ccf8;
+    font-size: 11px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 8, 18, 0.72);
+    border: 0;
+  }
+
+  .cred-dialog {
+    position: fixed;
+    left: 14px;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    border-radius: 12px;
+    background: var(--ink);
+    border: 1px solid var(--ink-line);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  }
+
+  .cred-dialog h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .cred-sub {
+    margin: -4px 0 2px;
+    font-size: 11px;
+    color: var(--txt-dim);
+  }
+
+  .field {
+    position: static;
+    height: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--txt-dim);
+    cursor: default;
+  }
+
+  .text-input {
+    position: static;
+    width: 100%;
+    height: 32px;
+    padding: 0 9px;
+    border-radius: 6px;
+    border: 1px solid var(--ink-line);
+    background: var(--ink-field);
+    color: var(--txt);
+    font: inherit;
+    font-size: 12px;
+    opacity: 1;
+    cursor: text;
+  }
+
+  .cred-error {
+    margin: 0;
+    font-size: 11px;
+    color: var(--red-txt);
+  }
+
+  .cred-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .ghost {
+    padding: 0 12px;
+    height: 32px;
+    background: var(--ink-field);
+    border: 1px solid var(--ink-line);
+    color: var(--txt-dim);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .primary {
+    padding: 0 14px;
+    height: 32px;
+    background: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
   }
 
   .count {

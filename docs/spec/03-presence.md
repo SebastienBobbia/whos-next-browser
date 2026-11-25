@@ -30,3 +30,21 @@ La vue Présence (« Qui est présent ? ») sert à choisir les Participants ava
 Rien n'est enregistré dans les autres cas : retour à la vue Équipe, fermeture du panneau, clic sur `Démarrer` sans aucune case cochée.
 
 **PR-10** — Si l'Équipe est vide, la vue affiche `Aucun membre dans l'équipe. Retournez en arrière pour en ajouter.` `[INDICATIF]` et le bouton `Démarrer` est désactivé. Ce cas ne peut pas se produire en passant par la vue Équipe (EQ-18), mais la vue doit quand même le gérer.
+
+## Synchronisation avec le Planning
+
+**PR-11** `[NOUVEAU]` — À chaque ouverture de la vue Présence, si l'adresse du Planning est configurée et que l'accès à son hôte est autorisé, l'extension interroge en tâche de fond le Planning (`WebplanningRD`) pour la journée courante sur le créneau du daily (**09h15–10h00**), sans bloquer l'affichage initial issu de l'Équipe (PR-04). Voir [ADR 0005](../adr/0005-source-planning-webplanning-rd.md).
+
+**PR-12** `[NOUVEAU]` — L'extension tente d'abord de lire `Sched/Scheduler.aspx` avec la session déjà ouverte du navigateur (`credentials: "include"`). Si la session n'est pas authentifiée et que des identifiants sont enregistrés dans `storage.local` (PE-14), l'extension s'authentifie automatiquement sur `Identification.aspx`. Une fenêtre modale dans la vue Présence (`Adresse du planning`, `Identifiant`, `Mot de passe`, `Enregistrer`) permet de configurer ou modifier ces informations et demande l'autorisation d'accès à l'hôte du Planning (`optional_host_permissions`). Un bouton permet également de rafraîchir le Planning à tout moment.
+
+**PR-13** `[NOUVEAU]` — La correspondance entre un Membre de l'Équipe et une ressource du Planning (`v.resources`) est établie en comparant les noms normalisés (sans casse, sans accents, sans points, espaces superflus retirés).
+
+**PR-14** `[NOUVEAU]` — Pour chaque Membre trouvé dans les ressources du Planning :
+- On recherche dans `v.events.list` les événements de cette ressource qui chevauchent le créneau **09h15–10h00** du jour (`start < AAAA-MM-JJT10:00:00` et `end > AAAA-MM-JJT09:15:00`), en ignorant la catégorie `[Activité autre]` (`x_id_type_rdv == "18"`).
+- Si au moins un événement d'indisponibilité chevauche le créneau : le Membre est **décoché** et son **Statut Planning** (le nom de la catégorie sans les crochets, ex. `Absence`, `Absence prév.`, `Réunion Interne R&D`) s'affiche à côté de son prénom. Si plusieurs événements chevauchent le créneau, les absences journée/demi-journée (`[Absence]`, `[Absence prév.]`, `[Férié - Pas travaillé]`) sont prioritaires sur les autres événements.
+- Si aucun événement d'indisponibilité ne chevauche le créneau : le Membre est **coché** (même s'il était marqué `absent: true` lors de la Session précédente).
+
+**PR-15** `[NOUVEAU]` — Pour chaque Membre de l'Équipe qui **n'apparaît pas** dans les ressources renvoyées par le Planning (ou lorsque le Planning est injoignable / non configuré), l'état coché/décoché initial issu de l'Équipe (PR-04) est conservé.
+
+**PR-16** `[NOUVEAU]` — Le **Statut Planning** affiché à côté du prénom reste visible à titre informatif sur la ligne du Membre même si l'utilisateur coche ou décoche manuellement la case, ou utilise `Tout cocher` / `Tout décocher`.
+

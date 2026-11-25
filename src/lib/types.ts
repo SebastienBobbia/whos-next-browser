@@ -21,3 +21,32 @@ export type Member = {
 export function sameName(a: string, b: string): boolean {
   return a.trim().toLocaleLowerCase("fr") === b.trim().toLocaleLowerCase("fr");
 }
+
+/** Normalise un nom pour la correspondance Équipe <-> Planning (PR-13) : sans casse, sans accents, sans points. */
+export function normalizePlanningName(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\./g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+export type PlanningMemberStatus = {
+  unavailable: boolean;
+  status?: string;
+};
+
+export type PlanningResult =
+  | { state: "unconfigured" }
+  | { state: "missing_permission"; planningUrl: string }
+  | { state: "auth_required"; planningUrl: string; username?: string }
+  | { state: "auth_failed"; planningUrl: string; username: string }
+  | { state: "error"; planningUrl: string; message: string }
+  | {
+      state: "ready";
+      planningUrl: string;
+      resources: Record<string, PlanningMemberStatus>;
+    };
+

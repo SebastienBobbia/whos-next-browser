@@ -16,3 +16,4 @@ export default defineBackground(() => {
 
 /** API `sidebarAction`, propre à Firefox, absente des types Chrome de WXT. */
 type FirefoxBrowser = { sidebarAction: { toggle(): Promise<void> } };
+

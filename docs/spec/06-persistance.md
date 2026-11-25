@@ -85,3 +85,8 @@ Les exigences PE-03 à PE-06 de l'application de bureau (encodage de `team.json`
 ## Confidentialité
 
 **FI-10** `[NOUVEAU]` — Un Fichier d'Équipe contient des noms, des images et des adresses internes. Il circule entre collègues (sur Teams par exemple) et n'est jamais versionné dans le dépôt, qui est public. Le dépôt ignore les fichiers `whos-next-equipe*.json`.
+
+## Configuration du Planning
+
+**PE-14** `[NOUVEAU]` — L'adresse du Planning (`planningUrl`, par ex. l'URL de `WebplanningRD` ou de sa page `Identification.aspx` / `Scheduler.aspx`) est enregistrée avec l'Équipe dans `storage.local` et voyage de façon facultative à la racine du Fichier d'Équipe (`"planningUrl": "http://..."`). Les identifiants personnels de connexion au Planning (`username`, `password`) sont enregistrés séparément dans `storage.local` sous la clé `planning_auth` et ne sont jamais exportés dans le Fichier d'Équipe.
+

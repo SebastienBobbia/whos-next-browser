@@ -40,6 +40,7 @@ Parcours déjà automatisés dans Chromium, à confirmer dans Firefox et Zen.
 | R-33 | Accès accordé, onglet du Tableau ouvert : cliquer sur plusieurs Tuiles de suite, dont une sans filtre | Les Filtres rapides changent dans la page, sans rechargement, aussi vite qu'un clic à la main ; le Tableau sans filtre décoche tout | LI-10, LI-11, PF-07 |
 | R-34 | Cliquer sur le Membre suivi sur un autre Tableau, puis sur un Membre du premier | Un second onglet s'ouvre, puis l'onglet du premier Tableau revient au premier plan | LI-10 |
 | R-35 | Partager toute la fenêtre du navigateur dans Teams pendant une Session | Les participants voient le panneau et la Célébration ; en partageant un seul onglet, ils ne le voient pas | PA-06 |
+| R-36 | Dans la vue Présence, configurer le Planning (`Adresse du planning`, `Identifiant`, `Mot de passe`) et cliquer sur `Enregistrer`, puis tester `Tout cocher` et rouvrir la vue | Le navigateur demande l'accès au serveur du Planning ; les Membres indisponibles sur 09h15–10h00 sont décochés avec leur Statut Planning affiché (qui reste visible même après `Tout cocher`), et les Membres hors ressources du Planning gardent leur état d'Absent | PR-11, PR-12, PR-15, PR-16 |
 
 ## Écrans
 
