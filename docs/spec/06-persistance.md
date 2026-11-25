@@ -35,7 +35,7 @@ Les exigences PE-03 à PE-06 de l'application de bureau (encodage de `team.json`
 
 **FI-01** `[NOUVEAU]` — La vue Équipe propose deux boutons : `Importer` et `Exporter` `[INDICATIF]`. Quand l'Équipe est vide, `Exporter` est désactivé.
 
-**FI-02** `[NOUVEAU]` — `Exporter` télécharge un Fichier d'Équipe, par le mécanisme de téléchargement habituel du navigateur. Son nom est `whos-next-equipe-AAAAMMJJ.json` `[INDICATIF]`, avec la date du jour. Il contient l'Équipe dans son ordre : pour chaque Membre, son nom, son Icône (emoji, ou image complète avec le nom de son fichier d'origine) et son Lien. Il ne contient pas les marques d'Absent : chaque animateur garde sa propre mémoire des Absents.
+**FI-02** `[NOUVEAU]` — `Exporter` télécharge un Fichier d'Équipe, par le mécanisme de téléchargement habituel du navigateur. Son nom est `whos-next-equipe-AAAAMMJJ.json` `[INDICATIF]`, avec la date du jour. Il contient l'Équipe dans son ordre : pour chaque Membre, son nom, son Icône (emoji, ou image complète avec le nom de son fichier d'origine), son Lien et son état Désactivé éventuel (`disabled: true`, EQ-20). Il ne contient pas les marques d'Absent : chaque animateur garde sa propre mémoire des Absents.
 
 **FI-03** `[NOUVEAU]` — Le Fichier d'Équipe est un fichier JSON en UTF-8, indenté de 2 espaces. Les caractères non ASCII (accents, emojis) sont écrits tels quels, sans séquence `\u`. Structure :
 

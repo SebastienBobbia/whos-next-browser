@@ -144,10 +144,24 @@ export class TeamStore {
     await this.#persist();
   }
 
+  /** Active ou désactive un Membre pour une absence longue (EQ-20). */
+  async toggleDisabled(name: string): Promise<void> {
+    const member = this.#find(name);
+    if (!member) return;
+    if (member.disabled) {
+      delete member.disabled;
+      delete member.absent;
+    } else {
+      member.disabled = true;
+    }
+    await this.#persist();
+  }
+
   /** Enregistre les Absents au lancement d'une Session (PR-09). */
   async saveAbsents(presentNames: string[]): Promise<void> {
     const present = new Set(presentNames);
     for (const member of this.members) {
+      if (member.disabled) continue;
       if (present.has(member.name)) delete member.absent;
       else member.absent = true;
     }
@@ -182,6 +196,7 @@ export class TeamStore {
         if (data) out.icon = { type: "image", file: member.icon.file, data };
       }
       if (member.link) out.link = member.link;
+      if (member.disabled) out.disabled = true;
       members.push(out);
     }
     return serializeTeamFile(teamFile(members, this.planningUrl));
@@ -207,6 +222,7 @@ export class TeamStore {
         member.icon = { type: "image", id, file: source.icon.file };
       }
       if (source.link) member.link = source.link;
+      if (source.disabled) member.disabled = true;
       if (absents.some((name) => sameName(name, source.name))) member.absent = true;
       members.push(member);
     }

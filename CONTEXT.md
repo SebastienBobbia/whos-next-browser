@@ -11,8 +11,12 @@ Liste ordonnée et persistante des Membres.
 _Avoid_: Liste, groupe
 
 **Membre**:
-Personne enregistrée dans l'Équipe, identifiée par un nom unique, avec une Icône et un Lien optionnels.
+Personne enregistrée dans l'Équipe, identifiée par un nom unique, avec une Icône et un Lien optionnels, et pouvant être Désactivée en cas d'absence longue.
 _Avoid_: Personne paramétrée, utilisateur, member
+
+**Désactivé**:
+État d'un Membre absent sur une longue durée : il reste dans la vue Équipe (avec un style estompé/barré), est partagé dans le Fichier d'Équipe, et n'apparaît pas dans la vue Présence tant qu'il n'est pas réactivé.
+_Avoid_: Inactif, archivé, suspendu
 
 **Icône**:
 Visuel optionnel d'un Membre : soit un emoji, soit une image importée.

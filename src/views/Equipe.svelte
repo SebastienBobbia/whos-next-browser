@@ -23,6 +23,7 @@
   let pending = $state<ParsedTeamFile | null>(null);
 
   const count = $derived(team.members.length);
+  const activeCount = $derived(team.members.filter((m) => !m.disabled).length);
 
   function members(n: number): string {
     return `${n} membre${n > 1 ? "s" : ""}`;
@@ -130,6 +131,7 @@
       <li
         class="row"
         class:dragging={dragFrom === index}
+        class:disabled={!!member.disabled}
         draggable="true"
         onpointerdown={(e) => (pressedOnButton = !!(e.target as Element).closest("button"))}
         ondragstart={(e) => onDragStart(e, index)}
@@ -154,6 +156,13 @@
           onclick={() => onEditLink(member)}>
           <Glyph name="link" size={14} />
         </button>
+        <button
+          class="disable-btn"
+          class:off={!!member.disabled}
+          title={member.disabled ? "Réactiver" : "Désactiver"}
+          onclick={() => team.toggleDisabled(member.name)}>
+          <Glyph name="power" size={14} />
+        </button>
         <button class="del-btn" title="Supprimer" onclick={() => team.remove(member.name)}>
           <Glyph name="close" size={14} />
         </button>
@@ -176,7 +185,7 @@
   </div>
   {#if fileError}<p class="error">{fileError}</p>{/if}
 
-  <button class="cta" onclick={onPrepare} disabled={count === 0}>
+  <button class="cta" onclick={onPrepare} disabled={activeCount === 0}>
     Préparer le Daily <Glyph name="go" />
   </button>
 </div>
@@ -318,6 +327,15 @@
     background: #1a5c2a;
   }
 
+  .row.disabled {
+    background: #1c1c34;
+  }
+
+  .row.disabled .name {
+    color: var(--txt-faint);
+    text-decoration: line-through;
+  }
+
   .handle {
     display: flex;
     color: var(--txt-faint);
@@ -336,6 +354,7 @@
 
   .icon-btn,
   .link-btn,
+  .disable-btn,
   .del-btn {
     width: 30px;
     height: 26px;
@@ -348,7 +367,8 @@
   }
 
   /* Lien : estompé tant qu'il n'existe pas, mis en valeur ensuite (LI-01). */
-  .link-btn {
+  .link-btn,
+  .disable-btn {
     color: var(--txt-faint);
     background: transparent;
     border: 1px solid var(--ink-line);
@@ -358,6 +378,12 @@
     color: #fff;
     background: var(--blue);
     border-color: transparent;
+  }
+
+  .disable-btn.off {
+    color: #fde68a;
+    background: #452c1e;
+    border-color: #92400e;
   }
 
   .btn-emoji {

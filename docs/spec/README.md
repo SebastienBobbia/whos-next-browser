@@ -18,7 +18,7 @@ Une exigence reprise de l'application de bureau garde son identifiant (`EQ-05`, 
 
 | Fichier | Contenu |
 |---|---|
-| [01-equipe.md](01-equipe.md) | Vue Équipe : ajout, suppression et ordre des Membres, saisie du Lien |
+| [01-equipe.md](01-equipe.md) | Vue Équipe : ajout, suppression, désactivation et ordre des Membres, saisie du Lien |
 | [02-icones.md](02-icones.md) | Choix d'une Icône, import d'image, couleur dominante |
 | [03-presence.md](03-presence.md) | Vue Présence : choix des Participants, mémoire des Absents |
 | [04-session.md](04-session.md) | Session : Tuiles, chargement du Lien, Tirage, annulation, Célébration |

@@ -15,6 +15,8 @@ export type Member = {
   link?: string;
   /** Absent : présent uniquement quand il vaut true */
   absent?: boolean;
+  /** Désactivé (absence longue) : présent uniquement quand il vaut true (EQ-20) */
+  disabled?: boolean;
 };
 
 /** Compare deux noms de Membre : casse ignorée, accents distincts (EQ-10). */

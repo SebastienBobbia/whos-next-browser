@@ -16,9 +16,11 @@
   let { onBack, onStart }: { onBack: () => void; onStart: (attendees: string[]) => void } =
     $props();
 
+  const activeMembers = $derived(team.members.filter((m) => !m.disabled));
+
   // Coché par défaut, sauf pour les Absents du dernier daily (PR-04).
   let checked = $state<Record<string, boolean>>(
-    Object.fromEntries(team.members.map((m) => [m.name, !m.absent])),
+    Object.fromEntries(team.members.filter((m) => !m.disabled).map((m) => [m.name, !m.absent])),
   );
 
   // Statut Planning affiché à côté du prénom (PR-14, PR-16).
@@ -35,10 +37,10 @@
   let configSaving = $state(false);
   let configError = $state("");
 
-  const present = $derived(team.members.filter((m) => checked[m.name]).map((m) => m.name));
+  const present = $derived(activeMembers.filter((m) => checked[m.name]).map((m) => m.name));
 
   function setAll(value: boolean) {
-    checked = Object.fromEntries(team.members.map((m) => [m.name, value]));
+    checked = Object.fromEntries(activeMembers.map((m) => [m.name, value]));
   }
 
   function applyPlanningResult(res: PlanningResult) {
@@ -53,7 +55,7 @@
     const nextChecked = { ...checked };
     const nextStatuses: Record<string, string> = {};
 
-    for (const member of team.members) {
+    for (const member of activeMembers) {
       const key = normalizePlanningName(member.name);
       const entry = res.resources[key];
       if (!entry) {
@@ -167,7 +169,7 @@
     if (present.length === 0) return;
     // Avant tout await : le navigateur n'accepte la demande que pendant le clic (LI-16).
     const presentSet = new Set(present);
-    requestBoardAccess(team.members.filter((m) => presentSet.has(m.name)).map((m) => m.link));
+    requestBoardAccess(activeMembers.filter((m) => presentSet.has(m.name)).map((m) => m.link));
     await team.saveAbsents(present);
     onStart(present);
   }
@@ -179,7 +181,7 @@
     <p>Cochez les personnes présentes au daily</p>
   </header>
 
-  {#if team.members.length === 0}
+  {#if activeMembers.length === 0}
     <p class="empty">Aucun membre dans l'équipe. Retournez en arrière pour en ajouter.</p>
   {:else}
     <div class="toggles">
@@ -227,7 +229,7 @@
   {/if}
 
   <ul class="list">
-    {#each team.members as member (member.name)}
+    {#each activeMembers as member (member.name)}
       <li class="row" class:off={!checked[member.name]}>
         <label>
           <input type="checkbox" bind:checked={checked[member.name]} />
@@ -244,7 +246,7 @@
     {/each}
   </ul>
 
-  <p class="count">{present.length}/{team.members.length} présents</p>
+  <p class="count">{present.length}/{activeMembers.length} présents</p>
 
   <div class="actions">
     <button class="back" onclick={onBack}><Glyph name="back" size={14} /> Retour</button>
